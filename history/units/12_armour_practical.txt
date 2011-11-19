@@ -1,0 +1,1 @@
+armour_practical = 12.000

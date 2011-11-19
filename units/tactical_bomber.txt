@@ -1,0 +1,48 @@
+tactical_bomber = {
+	type = air
+	active = no
+	sprite = Tactical
+	
+	is_bomber = yes
+	
+	#Size Definitions
+	max_strength = 100
+	default_organisation = 30
+	default_morale = 0.30
+	officers = 40
+
+
+	#Building Costs
+	build_cost_ic = 16.00
+	build_cost_manpower = 1.60
+	build_time = 220
+
+	#Misc Abilities
+	maximum_speed = 200.00
+	transport_capability = 0.00
+	supply_consumption = 2.00
+	fuel_consumption = 3.45
+	range = 400.00
+	radio_strength = 1
+
+	#Detection Abilities
+	surface_detection = 1.00
+	air_detection = 0.00
+
+	#Defensive Abilities
+	surface_defence = 3.50
+	air_defence = 4.25
+
+	#Offensive Abilities
+	soft_attack = 11.00 #(aphro_2011117)9.00
+	hard_attack = 3.75
+	sea_attack = 3.125	#(aphro_20111115)4.125
+	air_attack = 1.25
+	strategic_attack = 2.25
+	sub_attack = 2.25
+
+	completion_size = 3.5
+	on_completion = twin_engine_aircraft_practical
+	
+	priority = 3
+}

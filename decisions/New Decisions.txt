@@ -1,0 +1,22 @@
+diplomatic_decisions = {
+	Commonwealth_Join_War= {
+		potential = {
+			not = { has_country_flag = joined_allies }
+			OR = {
+				tag = CAN
+				tag = AST
+				tag = NZL
+				tag = SAF
+				}
+			is_in_any_faction = no
+		allow = {
+			ENG = { war_with = GER }
+			}
+		effect = {
+			set_country_flag = joined_allies
+			join_faction = allies
+			manpower = 50
+				}
+		ai_will_do = { factor = 100 }
+		}		
+	}

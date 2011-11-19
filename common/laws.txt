@@ -1,0 +1,402 @@
+civil_law = {
+    open_society = {
+    	cost = 0.5
+        allow = {
+		ideology_group = democracy
+        }
+        counter_intelligence = -0.25
+    }
+
+    limited_restrictions = {
+    	cost = 0.5
+        allow = {
+            OR = {
+		AND = {
+                	war = yes
+                	popularity = 50
+		}     
+                AND = {
+      			NOT = { ideology_group = democracy }
+                    	national_unity = 50
+                }
+            }
+        }
+        war_consumer_goods_demand = -0.01
+        counter_intelligence = -0.10
+        partisan_efficiency = 1
+    }
+
+    legalistic_restrictions = {
+    	cost = 0.5
+        allow = {
+            OR = {
+		AND = {
+                	war = yes
+                	popularity = 55
+		}
+		AND = {
+			NOT = { ideology_group = democracy }
+			national_unity = 60
+		}
+            }
+        }
+        war_consumer_goods_demand = -0.02
+        partisan_efficiency = 2
+    }
+
+    repression = {
+    	cost = 0.5
+        allow = {
+            OR = {
+		AND = {
+			NOT = { ideology_group = democracy }
+			national_unity = 70
+		}
+                AND = {
+                    popularity = 70
+                    war = yes
+                }
+            }
+        }
+        war_consumer_goods_demand = -0.03
+        counter_intelligence = 0.1
+        partisan_efficiency = 3
+        ruling_party_support = 0.1
+    }
+
+    totalitarian_system = {
+    	cost = 0.5
+      	allow = {
+            OR = {
+		ideology = stalinist
+                ideology = national_socialist
+            } 
+        }
+        war_consumer_goods_demand = -0.04
+        counter_intelligence = 0.25
+        partisan_efficiency = 4
+        ruling_party_support = 0.3
+    }
+}
+
+conscription_law = {
+    volunteer_army = {
+    	cost = 0.5
+        allow = {
+            NOT = {
+                war = yes
+            }
+        }
+        global_manpower_modifier = -0.50
+        peacetime_manpower_rotation = 0.10
+	officer_recruitment = -0.50
+    }
+
+    one_year_draft = {
+    	cost = 0.5
+        allow = {
+            OR = {
+                war = yes
+	        AND  = {
+	                NOT = {
+	                    neutrality = 65
+	                }
+	                national_unity = 60
+	            }
+	           AND = {
+	        	NOT = { ideology_group = democracy }
+	                NOT = {
+	                    neutrality = 70
+	                }
+			national_unity = 60
+	            }
+	         AND = {
+	         	ideology_group = communism
+	         	national_unity = 60
+	         }
+            }
+        }
+        global_manpower_modifier = -0.25
+        peacetime_manpower_rotation = 0.05
+        officer_recruitment = -0.25
+    }
+    two_year_draft = {
+    	cost = 0.5
+        allow = {
+            OR = {
+                war = yes
+               
+                    AND  = {
+                        NOT = {
+                            neutrality = 60
+                        }
+                        national_unity = 70
+                    }
+                   AND = {
+			NOT = { ideology_group = democracy }
+                        NOT = {
+                            neutrality = 65
+                        }
+			national_unity = 70
+                    }
+	         AND = {
+	         	ideology_group = communism
+	         	national_unity = 70
+	         }
+                    
+             }
+        }
+        peacetime_manpower_rotation = 0.03
+        officer_recruitment = 0
+    }
+
+    three_year_draft = {
+    	cost = 0.5
+        allow = {
+            OR = {
+                war = yes
+ 
+                    AND  = {
+                        NOT = {
+                            neutrality = 55
+                        }
+                        national_unity = 70
+                    }
+                    AND = {
+			NOT = { ideology_group = democracy }
+                        NOT = {
+                            neutrality = 60
+                        }
+			national_unity = 70
+                    }
+	         AND = {
+	         	ideology_group = communism
+	         	national_unity = 75
+	         }
+                    
+                }
+
+        }
+        global_manpower_modifier = 0.25
+        peacetime_manpower_rotation = 0.02
+        officer_recruitment = 0.25
+    }
+
+}
+
+
+economic_law = {
+    full_civilian_economy = {
+    	cost = 0.5
+        allow = {
+        }
+        peace_consumer_goods_demand = -0.1
+        global_ic = -0.5
+        global_money = 0.15        
+        global_resources = -0.5
+    }
+
+    basic_mobilisation = {
+    	cost = 0.5
+        allow = {
+            OR = {
+                war = yes
+                    AND  = {
+                        NOT = {
+                            neutrality = 65
+                        }
+                        national_unity = 60
+                    }
+                   AND = {
+			NOT = { ideology_group = democracy }
+                        NOT = {
+                            neutrality = 75
+                        }
+			national_unity = 60
+                    }
+                }
+        }
+	peace_consumer_goods_demand = -0.05
+        global_ic = -0.25
+        global_resources = -0.25
+        global_money = 0.05
+    }
+
+    full_mobilisation = {
+    	cost = 0.5
+       	allow = {
+            OR = {
+                war = yes
+                   AND = {
+    			NOT = { ideology_group = democracy }
+                        NOT = {
+                            neutrality = 65
+                        }
+			national_unity = 60
+                    }
+                }
+        }
+         global_money = -0.10
+    }
+}
+
+
+education_investment_law = {
+    minimal_education_investment = {
+    	cost = 0.5
+        allow = {
+        }
+        global_money = 0.10
+        global_leadership_modifier = -0.15
+    }
+    average_education_investment = {
+    	cost = 0.5
+        allow = {
+        }
+    }
+    medium_large_education_investment = {
+    	cost = 0.5
+        allow = {
+        }
+        global_money = -0.10
+        global_leadership_modifier = 0.10
+    }
+    big_education_investment= {
+    	cost = 0.5
+        allow = {
+        }
+        global_money = -0.25
+        global_leadership_modifier = 0.20
+    }
+}
+
+
+industrial_policy_laws = {
+    consumer_product_orientation = {
+    	cost = 0.5
+        allow = {
+            NOT = {
+                war = yes
+            }
+        }
+        peace_consumer_goods_demand = -0.01
+        industrial_efficiency = -0.05
+        dissent = -0.2
+    }
+
+    mixed_industry = {
+    	cost = 0.5
+        allow = {
+            OR = {
+		war = yes
+                AND = {
+                    ideology_group = fascism
+                    national_unity = 60
+                }
+                AND = {
+                    war = yes
+                    national_unity = 70
+                } 
+            }
+        }
+        war_consumer_goods_demand = -0.05
+        peace_consumer_goods_demand = -0.05
+        supply_throughput = 0.05      
+    }
+	
+    heavy_industry_emphasis = {
+    	cost = 0.5
+        allow = {
+            OR = {
+                AND = {
+                    ideology_group = communism
+                    national_unity = 70
+                }
+                AND = {
+                    war = yes
+                    national_unity = 80
+                } 
+            }
+        }
+        industrial_efficiency = 0.05
+        peace_consumer_goods_demand = 0.1
+        supply_throughput = 0.1
+    }
+}
+
+press_laws = {
+    free_press = {
+    	cost = 0.5
+        allow = {
+        }
+        national_unity_effect = 0.2 #national unity effects are exagerated 
+        counter_espionage = -0.10
+        drift_speed = 0.1
+    }
+
+    censored_press = {
+    	cost = 0.5
+        allow = {
+            war = yes
+        }
+        drift_speed = 0.05
+    }
+
+    state_press = {
+    	cost = 0.5
+        allow = {
+            NOT = {
+		ideology_group = democracy
+            }
+        }
+        national_unity_effect = -0.05 #national unity effects are limited
+        drift_speed = -0.05
+        counter_espionage = 0.05
+    }
+
+    propaganda_press = {
+    	cost = 0.5
+        allow = {
+                OR = {
+                    ideology = stalinist
+                    ideology = national_socialist
+                }
+         }
+        national_unity_effect = -0.1 #national unity effects are limited
+        counter_espionage = 0.10
+        drift_speed = -0.1
+    }
+}
+
+
+training_laws = {
+    minimal_training = {
+    	cost = 0.5
+        allow = {
+        }
+        unit_recruitment_time = -0.10
+    }
+
+    basic_training = {
+    	cost = 0.5
+        allow = {
+        }
+        unit_start_experience = 10
+    }
+
+    advanced_training = {
+    	cost = 0.5
+        allow = {
+        }
+        unit_recruitment_time = 0.10
+        unit_start_experience = 15
+    }
+
+    specialist_training = {
+    	cost = 0.5
+        allow = {    
+        }
+        unit_recruitment_time = 0.20
+        unit_start_experience = 25
+    }
+}

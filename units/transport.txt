@@ -1,0 +1,50 @@
+transport_ship = {
+	type = naval
+	sprite = Transportship
+	radio_strength = 1
+	
+	transport = yes
+	
+	hull = 1
+	
+	#Size Definitions
+	max_strength = 100
+	default_organisation = 20
+	default_morale = 0.20
+	officers = 25
+
+	#Building Costs
+	build_cost_ic = 5.00
+	build_cost_manpower = 1.00
+	build_time = 90
+
+	#Misc Abilities
+	maximum_speed = 15.00
+	transport_capability = 40.00
+	supply_consumption = 0.30
+	fuel_consumption = 1.15
+	range = 3000.00
+	distance = 0.10
+
+	#Detection Abilities
+	surface_detection = 0.00
+	air_detection = 0.00
+	sub_detection = 0.00
+	visibility = 90.00
+
+	#Defensive Abilities
+	sea_defence = 0.00
+	air_defence = 0.00
+
+	#Offensive Abilities
+	convoy_attack = 0.00
+	sea_attack = 0.00
+	sub_attack = 0.00
+	air_attack = 0.00
+	shore_bombardment = 0.00
+
+	completion_size = 0.5
+	on_completion = transport_practical
+	
+	priority = 1
+}

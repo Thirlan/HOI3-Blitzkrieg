@@ -1,0 +1,45 @@
+garrison_brigade = {
+	type = land
+	sprite = Infantry
+
+	#Size Definitions
+	max_strength = 30
+	default_organisation = 30
+	default_morale = 0.30
+	officers = 30
+
+	#Building Costs
+	build_cost_ic = 1.67
+	build_cost_manpower = 2.67
+	build_time = 60
+
+	#Misc Abilities
+	maximum_speed = 1.00
+	transport_weight =8.00
+	supply_consumption = 0.33
+	fuel_consumption = 0.00
+	radio_strength = 1
+
+	#Defensive Abilities
+	defensiveness = 3.5
+	toughness = 0.67
+	softness = 1.00
+	air_defence = 2.00
+
+	#Offensive Abilities
+	suppression = 2.00
+	soft_attack = 1.67
+	hard_attack = 0.26
+	air_attack = 0.10
+
+    	amphibious = { attack = -0.10 }
+        river = { attack = -0.05 }
+	
+	combat_width = 1
+
+	completion_size = 0.2
+	on_completion = militia_practical
+	
+	priority = 5
+
+}

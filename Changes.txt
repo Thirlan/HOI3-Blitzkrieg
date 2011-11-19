@@ -1,0 +1,90 @@
+------------Sangeli's----------------------------
+
+1. Lend Lease and Destroyers for bases now have mean time events to trigger the decision, 2 months and 6 months respectively
+2. When the event happens or the US enters war for Lend-Lease a decision appears for the US to choose to activate them
+3. Lend-Lease decreases US IC by 5% but increases UK IC by 20% and US production of supply by 20%
+4. If Germany is at war with the USSR then the US gets an event for Lend-Lease for them. The effect is taking away 10% of IC from the UK (so they are at +10% now) and giving 10% IC to the USSR
+5. Buildings heal 50% faster
+6. Log bombing is 50% less effective for all planes
+7. Jet engine tech beefed up (a lot more air defense as well as some air attack)
+8. War economy and service by requirement are only activated when you're at war with a major power
+9. Changed Japan's economic laws a bit (they start with war economy rather than total economic mobilization)
+10. Japan starts with conquer rather than puppet war goal for China in 38 start
+11. Added grand strategy and interwar doctrine decisions
+12. Human countries which start at peace start with consumer goods orientation and a bit more money
+13. Fixed bug for US new deal (tank build speed was not nerfed)
+14. Treaty of Munich gives Germany 450 more MP than before
+15. USSR starts with 2 year draft in 1938
+16. Integrated the latest AI mod by Thirlan
+
+------------Aphro's----------------------------
+CAG/CAS/NAV/TAC Sea Attack Changes:
+--CAG Range reduced to 200 (can strike all ports from adjacent provinces and a little inland)
+--CAG net range increases from techs are reduced slightly.
+--Base Sea Atack values for CAG/CAS/NAV/TAC changed to 5/7.5/4/3 from 6/4/4/3.
+--Air_Torp SeaAttack value increases for CAG/CAS/NAV changed to .75/.75/.5 from 1.125/0/1.125.
+--Small_Bomb SeaAttack value increases for CAG/CAS/MR changed to .75/.75/.25 from .5/.375/.25
+--Medium_Bomb SeaAttack value increases for NAV/TAC changed to .5/.5 from .75/.5
+--Nav_Strike SeaAttack value increases for CAG/NAV/CAS changed to 1/.5/1 from 1/1/.5.
+--Sub Attack increases from tech changed from Air_Torp to Med_Bomb, NAV only.
+
+***These changes are meant to make CAS the main Land Air unit for attacking Fleets.  CAS are short ranged, and this is more balanced overall.  The shortened CAG range means that CV's have to put themselves in harm's way to port strike. CAS are more effective at NAV strike than CAG and NAV.  CAG on CAG Duty is still far and away the best way to kill ships.  NAV's are now long range patrol bombers, mean to be adequate for attacking subs and convoys, not so much against Naval fleets.  
+
+***CAS are now considered to have torpedo capable bombers in their Wing.  Some what historical, but meant more for gameplay purposes.
+
+***Overall Sea Attack values have been lowered for CAG and NAV by about 10%.  They seemed a bit high and too deadly in G13.  CAS values are within the range of this lowered value set.
+
+NAV/TAC Surface_Detection Changes:
+--NAV Surface_Detection was reduced to 4 down from 6
+--TAC Surface_Detection was reduced to 1 down from 3
+--Medium_Navigation_Radar Surface Detection gain reduced for NAV/TAC to 4/1 down from 6/3
+
+***NAV's patrol bomber role means they retain a more superior Surface_Detection rating than other air units.  However, this was nerfed as late war tech values were outrageously high.  TAC still retains a better Detection rating than CAG/CAS, but not as good as NAV.  TAC+CAS can be used as a "poor man's coast defense" combining OK detection with good attack.  Overall, detection values have been reduced.  Small fleets/raiders and subs should now have an easier time.
+
+
+Militia:
+--Increased Officer cost by 5.
+
+AA Brigade:
+--Reduced officer cost to 30 down from 100.
+--Reduced Built Time to 76 down from 95.
+
+Naval AA:
+--Changed Base AA Values for ships
+DD- Now 1 down from 3.
+CL- Now 2 down from 5.
+CA- Now 3 up from 2.
+BC- Unchanged at 3.
+BB- Now 4 up from 1
+CV- Unchanged at 3.
+CVL- Unchanged at 1.
+
+--Changed AA Tech increases for ships
+DD- Now .5 was 1
+CL- Now .75 was 1.25
+CA- Now 1 was 2
+BC- Unchanged at 1.25
+BB- Now 3 was 1.5
+CV- Now 2 was .5
+CVL- Now 1 was 0
+
+--Added AA increases to Warship Radar techs
+Small_Warship_Radar - .25 per tech.
+Large_Warship_Radar - 1 per tech.
+
+***The change is that the lion's share of the AA shots should now come from Capital ships with an emphasis of gain from techs.  For gameplay, this should prevent DDzergs and CLzergs from obliterating air attacks.  Overal AA increased slightly, depending on fleet composition.
+
+***Air Defense values remain unchanged.
+
+Subs:
+--NAVAL_COMBAT_SUB_SURPRISE_CHANCE = 90  (up from 30)
+--NAVAL_COMBAT_SUB_SURPRISE_BONUS = 50.0  (up from 5.0)
+--NAVAL_COMBAT_SUB_SURPRISE_ROUNDS = 1  (down from 3)
+***These changes are meant to allow subs to atack fleets and hopefully do some damange, even if they get obliterated shortly after.
+
+--Sub IC Cost reduced to 3.5, down from 4.
+--Sub Build Days reduced to 210, down from 240.
+***Previous base line sub costs meant that each sub needed to sink 80+ convoys to be cost effective.  This reduction puts sub costs at about 60 convoys per sub.  With good practicals, a very cost effective sub campaign can be waged, forcing everyone to put effort into ASW.
+
+Air Ground Attack:
+--Increased base Soft Attack for Tac/CAS by +2 and MR/CAG/Strat +1.

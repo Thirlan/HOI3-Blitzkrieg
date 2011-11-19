@@ -1,0 +1,703 @@
+combat_medicine = {
+
+	casualty_trickleback = 0.01
+
+	research_bonus_from = {
+		land_doctrine_practical = 1.0
+	}
+
+	on_completion = land_doctrine_practical
+
+	difficulty = 2
+
+	start_year = 1938
+	first_offset = 1939	#2nd model is from 1936
+	additional_offset = 3	#one new every 2 years
+	folder = industry_folder
+}	
+
+first_aid = {
+
+	maximum_attrition = -0.05
+
+	research_bonus_from = {
+		land_doctrine_practical = 1.0
+	}
+
+	on_completion = land_doctrine_practical
+
+	difficulty = 2
+
+	start_year = 1938
+	first_offset = 1939	#2nd model is from 1936
+	additional_offset = 3	#one new every 2 years
+	folder = industry_folder
+}	
+
+agriculture = {
+
+	manpower_gain = 0.10
+
+	research_bonus_from = {
+		mechanicalengineering_theory = 1.0
+	}
+
+	on_completion = mechanicalengineering_theory
+
+	difficulty = 5
+
+	start_year = 1918
+	first_offset = 1932	#2nd model is from 1936
+	additional_offset = 2	#one new every 2 years
+	folder = industry_folder
+}	
+
+industral_production = {
+
+	ic_modifier = 0.025
+
+	research_bonus_from = {
+		mechanicalengineering_theory = 0.5
+		construction_practical  = 0.5
+	}
+
+	on_completion = mechanicalengineering_theory
+
+	difficulty = 2
+
+	start_year = 1918
+	first_offset = 1932	#2nd model is from 1936
+	additional_offset = 2	#one new every 2 years
+	folder = industry_folder
+}	
+
+industral_efficiency = {
+
+	ic_efficiency = 0.025
+
+	research_bonus_from = {
+		mechanicalengineering_theory = 0.5
+		construction_practical = 0.5
+	}
+
+	on_completion = mechanicalengineering_theory
+	difficulty = 3
+
+	start_year = 1918
+	first_offset = 1932	#2nd model is from 1936
+	additional_offset = 2	#one new every 2 years
+	folder = industry_folder
+}	
+
+oil_to_coal_conversion = {
+
+	energy_to_oil_conversion = 0.1
+
+	research_bonus_from = {
+		chemical_engineering = 1.0
+	}
+
+	on_completion = chemical_engineering
+	difficulty = 2
+
+	start_year = 1936
+	first_offset = 1938	#2nd model is from 1936
+	additional_offset = 3	#one new every 2 years
+	folder = industry_folder
+}	
+
+supply_production = {
+
+	ic_to_supplies = 0.05
+
+	research_bonus_from = {
+		mechanicalengineering_theory = 1.0
+	}
+
+	on_completion = mechanicalengineering_theory
+	difficulty = 2
+
+	start_year = 1918
+	first_offset = 1932	#2nd model is from 1936
+	additional_offset = 2	#one new every 2 years
+	folder = industry_folder
+}	
+
+heavy_aa_guns = {
+
+	activate_building = anti_air 
+	provincial_aa_efficiency = 0.2
+
+	research_bonus_from = {
+		artillery_theory = 0.3
+		artillery_practical = 0.7
+	}
+
+	on_completion = artillery_theory 
+	difficulty = 2
+
+	start_year = 1918
+	first_offset = 1936	#2nd model is from 1936
+	additional_offset = 3	#one new every 2 years
+	folder = industry_folder
+}
+	
+electronic_mechanical_egineering = {
+
+	# This has no direct effect
+
+	research_bonus_from = {
+		electornicegineering_theory  = 0.5
+		mechanicalengineering_theory = 0.5
+	}
+
+	on_completion = electornicegineering_theory
+
+	difficulty = 2
+
+	start_year = 1926
+	folder = industry_folder
+}
+	
+radio_technology = {
+
+	# This has no direct effect
+
+	
+	allow = {
+		electronic_mechanical_egineering = 1
+	}
+
+	research_bonus_from = {
+		electornicegineering_theory  = 0.5
+		mechanicalengineering_theory = 0.5
+	}
+
+	on_completion = electornicegineering_theory
+
+	difficulty = 2
+
+	start_year = 1930
+	folder = industry_folder
+}
+	
+radio_detection_equipment = {
+
+	listening_station = yes
+
+	
+	allow = {
+		radio_technology = 1
+	}
+
+	research_bonus_from = {
+		electornicegineering_theory  = 0.5
+		mechanicalengineering_theory = 0.5
+	}
+
+	on_completion = electornicegineering_theory
+
+	difficulty = 2
+
+	start_year = 1936
+	folder = industry_folder
+}
+	
+radio = {
+
+	combat_efficiency = 0.1
+	encryption = -0.2
+
+	allow = {
+		radio_technology = 1
+	}
+
+	research_bonus_from = {
+		electornicegineering_theory  = 0.5
+		mechanicalengineering_theory = 0.5
+	}
+
+	on_completion = electornicegineering_theory
+
+	difficulty = 2
+
+	start_year = 1936
+	folder = industry_folder
+}
+
+radar = {
+
+	activate_building = radar_station 
+	radar_efficiency = 0.05 
+	 
+
+	allow = {
+		radio_technology = 1
+	}
+
+	research_bonus_from = {
+		electornicegineering_theory  = 0.5
+		electornicegineering_practical = 0.5
+	}
+
+	on_completion = electornicegineering_theory
+
+	difficulty = 3
+
+	start_year = 1939
+	first_offset = 1940	#2nd model is from 1940
+	additional_offset = 2	#one new every 2 years
+	folder = industry_folder
+}
+
+census_tabulation_machine = {
+
+	research_efficiency = 0.02
+
+	allow = {
+		electronic_mechanical_egineering = 1
+	}
+
+	research_bonus_from = {
+		mechanicalengineering_theory = 1.0
+	}
+
+	on_completion = mechanicalengineering_theory
+
+
+	difficulty = 2
+
+	start_year = 1936
+	
+	folder = industry_folder
+}
+
+mechnical_computing_machine = {
+
+	research_efficiency = 0.02
+
+	allow = {
+		census_tabulation_machine = 1
+	}
+
+	research_bonus_from = {
+		mechanicalengineering_theory = 1.0
+	}
+
+	on_completion = mechanicalengineering_theory
+
+
+	difficulty = 3
+
+	start_year = 1938
+	first_offset = 1940 
+	additional_offset = 3
+	folder = industry_folder
+
+}
+
+electronic_computing_machine = {
+
+	research_efficiency = 0.05
+
+	allow = {
+		mechnical_computing_machine = 2
+	}
+
+	research_bonus_from = {
+		electornicegineering_theory = 1.0
+	}
+
+	on_completion = electornicegineering_theory
+
+	difficulty = 4
+
+	start_year = 1941
+	first_offset = 1943
+	additional_offset = 3
+	folder = industry_folder
+
+}
+
+decryption_machine = {
+
+	decryption = 0.1
+
+	allow = {
+		OR = {
+			mechnical_computing_machine = 1
+			AND = {
+				NOT = { decryption_machine = 3 }
+				electronic_computing_machine = 1
+			}
+		}
+	}
+
+	research_bonus_from = {
+		electornicegineering_theory  = 0.5
+		mechanicalengineering_theory = 0.5
+	}
+
+	on_completion = electornicegineering_theory
+
+	difficulty = 2
+
+	start_year = 1938
+	first_offset = 1940	#2nd model is from 1936
+	additional_offset = 3	#one new every 2 years
+	folder = industry_folder
+}
+
+
+encryption_machine = {
+
+	
+	encryption = 0.1
+
+	allow = {
+		OR = {
+			mechnical_computing_machine = 1
+			AND = {
+				NOT = { encryption_machine = 3 }
+				electronic_computing_machine = 1
+			}
+		}
+	}
+
+	research_bonus_from = {
+		electornicegineering_theory  = 0.5
+		mechanicalengineering_theory = 0.5
+	}
+
+	on_completion = electornicegineering_theory
+
+	difficulty = 2
+
+	start_year = 1938
+	first_offset = 1940	#2nd model is from 1936
+	additional_offset = 3	#one new every 2 years
+	folder = industry_folder
+}
+
+construction_engineering = {
+	activate_building = industry
+
+	research_bonus_from = {
+		mechanicalengineering_theory = 0.5
+		construction_practical = 0.5
+	}
+
+	on_completion = mechanicalengineering_theory
+
+	difficulty = 2
+
+	start_year = 1918
+	folder = industry_folder
+}	
+
+advanced_construction_engineering = {
+	activate_building = infra
+
+
+	allow = {
+		industral_production = 3
+		industral_efficiency = 3
+	}
+
+
+	research_bonus_from = {
+		mechanicalengineering_theory = 0.5
+		construction_practical = 0.5
+	}
+
+	on_completion = mechanicalengineering_theory
+
+	difficulty = 2
+
+	start_year = 1938
+	folder = industry_folder
+}	
+
+
+rocket_tests = {
+
+	activate_building = rocket_test 
+
+	research_bonus_from = {
+		rocket_science = 1.0
+	}
+
+	on_completion = rocket_science
+
+	difficulty = 4
+
+	start_year = 1936
+	folder = industry_folder
+}	
+
+rocket_engine = {
+
+	#no immediate effect
+
+	allow = {
+		rocket_tests = 1
+		any_owned_province = {
+			has_building = rocket_test
+		}
+	}
+
+	research_bonus_from = {
+		rocket_science = 1.0
+	}
+
+	on_completion = rocket_science
+
+	difficulty = 4
+
+	start_year = 1939
+	folder = industry_folder
+}	
+
+theorical_jet_engine = {
+
+	#no immediate effect
+
+	allow = {
+		rocket_engine = 1
+	}
+
+	research_bonus_from = {
+		jetengine_theory = 1.0
+	}
+
+	on_completion = jetengine_theory
+
+	difficulty = 4
+
+	start_year = 1940
+	folder = industry_folder
+}	
+
+atomic_research = {
+
+	#no immediate effect
+
+	research_bonus_from = {
+		nuclear_physics = 1.0
+	}
+
+	on_completion = nuclear_physics
+
+	difficulty = 10
+	
+	is_nuclear = yes
+
+	start_year = 1936
+	folder = industry_folder
+}
+
+nuclear_research = {
+
+	#no immediate effect
+
+	allow = {
+		atomic_research = 1
+	}
+
+	research_bonus_from = {
+		nuclear_physics = 1.0
+	}
+
+	on_completion = nuclear_physics
+
+	difficulty = 10
+	
+	is_nuclear = yes
+
+	start_year = 1940
+	folder = industry_folder
+}
+
+isotope_seperation = {
+
+	#no immediate effect
+
+	allow = {
+		nuclear_research = 1
+	}
+
+	research_bonus_from = {
+		nuclear_physics = 1.0
+	}
+
+	on_completion = nuclear_physics
+
+	difficulty = 10
+	is_nuclear = yes
+
+	start_year = 1942
+	folder = industry_folder
+}
+ 
+civil_nuclear_research = {
+
+	activate_building = nuclear_reactor
+	
+	allow = {
+		isotope_seperation = 1
+	}
+
+	research_bonus_from = {
+		nuclear_physics = 1.0
+	}
+
+	on_completion = nuclear_physics
+
+	difficulty = 10
+	
+	is_nuclear = yes
+
+	start_year = 1943
+	first_offset = 1944
+	additionaL_offset = 1
+	folder = industry_folder
+}
+
+oil_refinning = {
+
+	refinery_efficiency = 0.1
+
+	research_bonus_from = {
+		chemical_engineering = 1.0
+	}
+
+	on_completion = chemical_engineering
+	difficulty = 3
+
+	start_year = 1936
+	first_offset = 1938	#2nd model is from 1936
+	additional_offset = 3	#one new every 2 years
+	folder = industry_folder
+}
+
+steel_production = {
+
+	metal_production = 0.05
+
+	research_bonus_from = {
+		chemical_engineering = 1.0
+	}
+
+	on_completion = chemical_engineering
+	difficulty = 3
+
+	start_year = 1936
+	first_offset = 1938	#2nd model is from 1936
+	additional_offset = 3	#one new every 2 years
+	folder = industry_folder
+}
+
+raremetal_refinning_techniques = {
+
+	rares_production = 0.05
+
+	research_bonus_from = {
+		chemical_engineering = 1.0
+	}
+
+	on_completion = chemical_engineering
+	difficulty = 3
+
+	start_year = 1936
+	first_offset = 1938	#2nd model is from 1936
+	additional_offset = 3	#one new every 2 years
+	folder = industry_folder
+}
+
+coal_processing_technologies = {
+
+	energy_production = 0.05
+
+	research_bonus_from = {
+		chemical_engineering = 1.0
+	}
+
+	on_completion = chemical_engineering
+	difficulty = 3
+
+	start_year = 1936
+	first_offset = 1938	#2nd model is from 1936
+	additional_offset = 3	#one new every 2 years
+	folder = industry_folder
+}
+
+education = {
+
+	leadership_gain = 0.05
+
+	research_bonus_from = {
+		land_doctrine_practical = 1.0
+	}
+
+	on_completion = land_doctrine_practical
+
+	difficulty = 5
+
+	start_year = 1936
+	first_offset = 1938	#2nd model is from 1936
+	additional_offset = 3	#one new every 2 years
+	folder = industry_folder
+}
+
+
+supply_transportation = {
+	supply_transfer_cost = -0.01
+
+	research_bonus_from = {
+		land_doctrine_practical = 1.0
+	}
+
+	on_completion = land_doctrine_practical
+
+	difficulty = 3
+
+	start_year = 1936
+	first_offset = 1938	#2nd model is from 1936
+	additional_offset = 2	#one new every 2 years
+	folder = theory_folder	
+}
+
+
+supply_organisation = {
+	supply_throughput = 0.05
+
+	research_bonus_from = {
+		land_doctrine_practical = 1.0
+	}
+
+	on_completion = land_doctrine_practical
+	
+	difficulty = 3
+	
+	start_year = 1936
+	first_offset = 1938	#2nd model is from 1936
+	additional_offset = 2	#one new every 2 years
+	folder = theory_folder	
+}
+
+civil_defence = {
+	repair_rate = 0.05 	#building repair 5% faster
+
+	research_bonus_from = {
+		land_doctrine_practical = 1.0
+	}
+
+	on_completion = land_doctrine_practical
+
+	difficulty = 3
+
+	start_year = 1936
+	first_offset = 1939	#2nd model is from 1936
+	additional_offset = 3	#one new every 2 years
+	folder = theory_folder	
+}

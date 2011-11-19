@@ -1,0 +1,1 @@
+capitalship_practical = 15.000

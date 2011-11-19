@@ -1,0 +1,189 @@
+
+#Soviet Manpower
+
+country_event = {
+
+	id = 1609
+
+	trigger = {
+			TAG = SOV
+			war_with = GER
+			NOT = { has_country_flag = Ukraine_MP }
+			SOV = {
+			NOT = {
+				controls=2223    #Kiev
+				controls=3309    #Odessa
+				}
+			}
+		}
+
+
+	title = "Ukrianian Manpower"
+	desc = "After losing the Ukriane to the Axis invasion, the Soviet Union has lost a large population base to man their army."
+
+	option = {
+		name = "Ukrainian Manpower"
+		set_country_flag = Ukraine_MP
+		manpower = -300
+		ai_chance = { factor = 100 }
+	}
+}
+
+country_event = {
+
+	id = 1610
+
+	trigger = {
+			TAG = SOV
+			war_with = GER
+			NOT = { has_country_flag = Belarus_MP }
+			SOV = {
+			NOT = {
+				controls=1694    #Minsk
+				controls=1986    #Brest-Litovsk
+				}
+			}
+		}
+
+
+	title = "Belarussian Manpower"
+	desc = "After losing the Belarus to the Axis invasion, the Soviet Union has lost a large population base to man their army."
+	picture = "Bialystok_Minsk"
+
+	option = {
+		name = "Belarus Manpower"
+		set_country_flag = Belarus_MP
+		manpower = -150
+		ai_chance = { factor = 100 }
+	}
+}
+
+country_event = {
+
+	id = 1611
+
+	trigger = {
+			TAG = SOV
+			war_with = GER
+			NOT = { has_country_flag = Leningrad_MP }
+			SOV = {
+			NOT = {
+				controls=782     #Leningrad
+				controls=1178    #Riga
+				}
+			}
+		}
+
+
+	title = "Leningrad and Baltic States Manpower"
+	desc = "After losing the Leningrad and the Baltic states to the Axis invasion, the Soviet Union has lost a large population base to man their army."
+	picture = "Bialystok_Minsk"
+
+	option = {
+		name = "Leningrad Manpower"
+		set_country_flag = Leningrad_MP
+		manpower = -150
+		ai_chance = { factor = 100 }
+	}
+}
+
+country_event = {
+
+	id = 1612
+
+	trigger = {
+			TAG = SOV
+			war_with = GER
+			NOT = { has_country_flag = Western_Russia_MP }
+			SOV = {
+			NOT = {
+				controls=1535    #Smolensk
+				controls=1102    #Demjansk
+				controls=1941    #Orel
+				}
+			}
+		}
+
+
+	title = "Western Russian Manpower"
+	desc = "After losing Western Russia to the Axis invasion, the Soviet Union has lost a large population base to man their army."
+
+	option = {
+		name = "Western Russian Manpower"
+		set_country_flag = Western_Russia_MP
+		manpower = -200
+		ai_chance = { factor = 100 }
+	}
+}
+
+country_event = {
+
+	id = 1613
+
+	trigger = {
+			TAG = SOV
+			war_with = GER
+			NOT = { has_country_flag = Central_Russia_MP }
+			SOV = {
+			NOT = {
+				controls=1409     #Moscow	
+				controls=2057     #Voronez
+				controls=1589     #Tula
+				}
+			}
+		}
+
+
+	title = "Central Russian Manpower"
+	desc = "After losing Central Russia to the Axis invasion, the Soviet Union has lost a large population base to man their army."
+
+	option = {
+		name = "Central Russian Manpower"
+		set_country_flag = Central_Russia_MP
+		manpower = -300
+		ai_chance = { factor = 100 }
+	}
+}
+
+
+#Finland joins the Axis
+
+
+country_event = {
+
+	id = 1630
+
+	trigger = {
+			TAG = FIN
+			SOV = { war_with = GER }
+			NOT = {
+				controls=698                              #Viipuri
+				has_country_flag = Finland_Declines_Entry
+				war_with = SOV
+				}
+			is_subject = no
+			government_in_exile = no
+			is_in_any_faction = no
+			}
+
+
+	title = "Finland Joins the Axis"
+	desc = "After losing parts of Karelia in the Finnish Winter War, Finland wanted to get revenge on the USSR.  When Germany invaded it provided an excellent opportunity to reclaim territory it lost."
+
+	option = {
+		name = "Finland joins Axis and goes to war with the USSR"
+		join_faction = axis
+		war = SOV
+		manpower = 100
+		ai_chance = { factor = 100 }
+	}
+	option = {
+		name = "Finland declines Axis invatation"
+		set_country_flag = Finland_Declines_Entry
+		ai_chance = { factor = 0 }
+	}
+}
+
+
+			
+			

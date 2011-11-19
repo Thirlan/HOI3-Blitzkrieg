@@ -1,0 +1,55 @@
+rocket_artillery_brigade = {
+	type = land
+	sprite = Infantry
+	active = no
+
+	#Size Definitions
+	max_strength = 10
+	default_organisation = 30
+	default_morale = 0.30
+	officers = 100
+
+	#Building Costs
+	build_cost_ic = 2.67
+	build_cost_manpower = 1.33
+	build_time = 95
+
+	#Misc Abilities
+	maximum_speed = 5.00
+	transport_weight = 5.00
+	supply_consumption = 1.50
+	fuel_consumption = 0.00
+	radio_strength = 1
+	
+	#Defensive Abilities
+	defensiveness = 1.50	# was 2.67
+	toughness = 1.67
+	softness = 1.00
+	air_defence = 1.50
+
+	#Offensive Abilities
+	suppression = 0.00
+	soft_attack = 2.67
+	hard_attack = 1.00
+	air_attack = 0.10
+
+   	amphibious =    { attack = -0.80 }
+   	marsh = 	{ attack = -0.10 
+			movement = -0.50}
+	jungle = 	{ attack = -0.20 }
+	forest = 	{ attack = -0.20 
+			movement = -0.40}
+	woods = 	{ attack = -0.05 }
+	mountain = 	{ attack = -0.20
+			movement = -0.50}
+	fort = {attack = 0.10}
+	hills = 	{attack = -0.10}
+		
+	combat_width = 0
+	
+	completion_size = 0.3
+	on_completion = artillery_practical
+	
+	priority = 3
+
+}

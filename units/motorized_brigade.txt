@@ -1,0 +1,63 @@
+motorized_brigade = {
+	type = land
+	sprite = Motor
+	active = no
+
+	is_mobile = yes
+
+	#Size Definitions
+	max_strength = 30
+	default_organisation = 30
+	default_morale = 0.30
+	officers = 100
+
+
+	#Building Costs
+	build_cost_ic = 4.67
+	build_cost_manpower = 3.33
+	build_time = 120
+
+	#Misc Abilities
+	maximum_speed = 12.00
+	transport_weight = 15.00
+	supply_consumption = 1.00
+	fuel_consumption = 1.00
+	radio_strength = 1
+
+	#Defensive Abilities
+	defensiveness = 3.5
+	toughness = 3.00
+	softness = 0.90
+	air_defence = 1.50
+
+	#Offensive Abilities
+	suppression = 0.67
+	soft_attack = 2.00
+	hard_attack = 0.54
+	air_attack = 0.33
+
+	urban = {
+		attack = -0.10
+	}
+   	amphibious =    { attack = -0.20 }
+    	river =         { attack = -0.10 }
+   	marsh = 	{ attack = -0.10 
+			movement = -0.80}
+	jungle = 	{ attack = -0.20
+			movement = -0.40 }
+	forest = 	{ attack = -0.10
+			movement = -0.30 }
+	woods = 	{ attack = -0.05 
+			movement = -0.20}
+	mountain = 	{ attack = -0.20
+			movement = -0.40}
+	
+	
+	combat_width = 1
+
+	completion_size = 0.6
+	on_completion = mobile_practical
+	priority = 9
+
+}
+

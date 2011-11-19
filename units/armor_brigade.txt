@@ -1,0 +1,74 @@
+armor_brigade = {
+	type = land
+	sprite = Tank
+	active = no
+
+	is_mobile = yes
+	is_armor = yes
+
+	#Size Definitions
+	max_strength = 30
+	default_organisation = 30
+	default_morale = 0.30
+	officers = 150
+
+	#Building Costs
+	build_cost_ic = 11.00
+	build_cost_manpower = 2.33
+	build_time = 230
+
+	#Misc Abilities
+	maximum_speed = 9.00
+	transport_weight = 20.00
+	supply_consumption = 1.66
+	fuel_consumption = 3.4
+	radio_strength = 1
+
+	#Defensive Abilities
+	defensiveness = 2.35
+	toughness = 2.67
+	softness = 0.20
+	air_defence = 0.53
+
+	#Offensive Abilities
+	suppression = 0.00
+	soft_attack = 3.5
+	hard_attack = 3.5
+	air_attack = 0.33
+	
+	urban = {
+		attack = -0.40
+		defence = -0.40
+	}
+   	amphibious =    { attack = -0.60 }
+    	river =         { attack = -0.20 }
+   	marsh = 	{ attack = -0.40
+			  defence = -0.40 
+			  movement = -0.80
+			}
+	jungle = 	{ attack = -0.40
+			  defence = -0.40 
+			  movement = -0.40
+			}
+	forest = 	{ attack = -0.30
+			  defence = -0.30 
+			  movement = -0.40
+			}
+	woods = 	{ attack = -0.10
+			  defence = -0.10 
+ 			movement = -0.10}
+	mountain = 	{ attack = -0.30
+			  defence = -0.30  
+			  movement = -0.40 }
+	hills =         {attack = -0.10
+			  defence = -0.10   
+			movement = -0.10 }
+
+	combat_width = 2
+
+	completion_size = 1.7
+	on_completion = armour_practical
+
+	priority = 10
+
+}

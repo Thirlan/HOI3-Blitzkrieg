@@ -1,0 +1,165 @@
+naval_engineering_research = {
+
+	
+	allow = {
+		num_of_ports  =1
+	}
+
+	on_completion =naval_engineering
+
+	difficulty = 1
+	start_year = 1918
+	first_offset = 1920
+	additional_offset = 1
+	folder = theory_folder
+}
+
+submarine_engineering_research = {
+
+	allow = {
+		num_of_ports  =1
+	}
+
+	on_completion = submarine_engineering
+
+	difficulty = 1
+	start_year = 1918
+	first_offset = 1920
+	additional_offset = 1
+	folder = theory_folder
+}
+
+aeronautic_engineering_research = {
+
+	
+	on_completion = aeronautic_engineering
+
+	difficulty = 1
+	start_year = 1918
+	first_offset = 1920
+	additional_offset = 1
+	folder = theory_folder
+}
+
+rocket_science_research = {
+
+	
+	on_completion = rocket_science
+
+	difficulty = 1
+	start_year = 1918
+	first_offset = 1920
+	additional_offset = 1
+	folder = theory_folder
+}
+
+chemical_engineering_research = {
+
+	
+	on_completion = chemical_engineering
+
+	difficulty = 1
+	start_year = 1918
+	first_offset = 1920
+	additional_offset = 1
+	folder = theory_folder
+}
+
+nuclear_physics_research = {
+
+	on_completion = nuclear_physics
+
+	difficulty = 1
+	start_year = 1918
+	first_offset = 1920
+	additional_offset = 1
+	folder = theory_folder
+}
+
+jetengine_research = {
+
+	on_completion = jetengine_theory
+
+	difficulty = 1
+	start_year = 1918
+	first_offset = 1920
+	additional_offset = 1
+	folder = theory_folder
+}
+
+mechanicalengineering_research = {
+
+	on_completion = mechanicalengineering_theory
+
+	difficulty = 1
+	start_year = 1918
+	first_offset = 1920
+	additional_offset = 1
+	folder = theory_folder
+}
+
+automotive_research = {
+
+	on_completion = automotive_theory 
+
+	difficulty = 1
+	start_year = 1918
+	first_offset = 1920
+	additional_offset = 1
+	folder = theory_folder
+}
+
+electornicegineering_research = {
+
+	on_completion = electornicegineering_theory 
+
+	difficulty = 1
+	start_year = 1918
+	first_offset = 1920
+	additional_offset = 1
+	folder = theory_folder
+}
+
+artillery_research = {
+
+	on_completion = artillery_theory
+
+	difficulty = 1
+	start_year = 1918
+	first_offset = 1920
+	additional_offset = 1
+	folder = theory_folder
+}
+
+mobile_research = {
+
+	on_completion = mobile_theory
+
+	difficulty = 1
+	start_year = 1918
+	first_offset = 1920
+	additional_offset = 1
+	folder = theory_folder
+}
+
+militia_research = {
+
+	on_completion = militia_theory
+
+	difficulty = 1
+	start_year = 1918
+	first_offset = 1920
+	additional_offset = 1
+	folder = theory_folder
+}
+
+infantry_research = {
+
+	on_completion = infantry_theory
+
+	difficulty = 1
+	start_year = 1918
+	first_offset = 1920
+	additional_offset = 1
+	folder = theory_folder
+}

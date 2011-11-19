@@ -1,0 +1,50 @@
+submarine = {
+	type = naval
+	sprite = Submarine
+	is_sub = yes
+	active = no
+	
+	hull = 0.5
+	
+	#Size Definitions
+	max_strength = 100
+	default_organisation = 25
+	default_morale = 0.35
+	officers = 25
+
+
+	#Building Costs
+	build_cost_ic =  3.50		#(aphro 2011117)4.00
+	build_cost_manpower = 0.4
+	build_time = 210		#(aphro 20111117)240
+
+	#Misc Abilities
+	maximum_speed = 10.00
+	transport_capability = 0.00
+	supply_consumption = 0.30
+	fuel_consumption = 0.58
+	range = 800.00
+	distance = 0.15
+	radio_strength = 1
+	
+	#Detection Abilities
+	surface_detection = 2.00
+	air_detection = 1.00
+	sub_detection = 1.00
+	visibility = 5
+
+	#Defensive Abilities
+	sea_defence = 5.00
+	air_defence = 1.00
+
+	#Offensive Abilities
+	convoy_attack = 1.00
+	sea_attack = 2.00
+	sub_attack = 0.00
+	air_attack = 1.00
+	shore_bombardment = 0.00
+
+	completion_size = 1
+	on_completion = submarine_practical
+	priority = 3
+}

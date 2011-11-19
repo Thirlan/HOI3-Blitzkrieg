@@ -1,0 +1,50 @@
+super_heavy_battleship = {
+	type = naval
+	sprite = Battleship
+	capital = yes
+	
+	hull = 5
+	active = no
+	
+	#Size Definitions
+	max_strength = 100
+	default_organisation = 30
+	default_morale = 0.30
+	officers = 50
+
+	#Building Costs
+	build_cost_ic = 10.50
+	build_cost_manpower = 3.00
+	build_time = 760
+
+	#Misc Abilities
+	maximum_speed = 18.00
+	transport_capability = 0.00
+	supply_consumption = 1.00
+	fuel_consumption = 2.30
+	range = 3500.00
+	distance = 0.38
+	radio_strength = 1.25
+
+	#Detection Abilities
+	surface_detection = 1.00
+	air_detection = 1.00
+	sub_detection = 1.00
+	visibility = 95.00
+
+	#Defensive Abilities
+	sea_defence = 2.00
+	air_defence = 3.00
+
+	#Offensive Abilities
+	convoy_attack = 22.00
+	sea_attack = 18.00
+	sub_attack = 0.00
+	air_attack = 5.00
+	shore_bombardment = 14.00
+
+	completion_size = 8
+	on_completion = capitalship_practical
+	
+	priority = 9
+}

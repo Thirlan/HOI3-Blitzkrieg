@@ -1,0 +1,88 @@
+country_event = {
+	id = 1635
+	is_triggered_only = yes
+	title = "Grand Strategy"
+	desc = "Your country needs a grand strategy.  Where will you make your mark in the world?"
+	option = {
+		name = "We will dominate on land!"
+		ai_chance = { factor = 100 }
+		add_country_modifier = {
+			name = "big_army"
+			duration = 300
+		}
+	}
+	option = {
+		name = "We will dominate on the sea!"
+		add_country_modifier = {
+			name = "big_navy"
+			duration = 300
+		}
+	}
+	option = {
+		name = "We will dominate in the air!"
+		add_country_modifier = {
+			name = "big_air_force"
+			duration = 300
+		}
+	}
+}
+country_event = {
+	id = 1636
+	is_triggered_only = yes
+	title = "Inter War Focus"
+	desc = "After World War I each country developed different ideas of what it would take to win the next World War.  What does your country think will be the key to victory?"
+	option = {
+		name = "We will focus on work development projects"
+		load_oob = "20_construction_practical.txt"
+		ai_chance = { factor = 100 }
+	}
+	option = {
+		name = "Tactical air support will be imperative in the next war"
+		medium_fueltank = 100
+		twin_engine_airframe = 100
+		twin_engine_aircraft_armament = 100
+		medium_bomb = 100
+		load_oob = "15_twin_engine_aircraft_practical.txt"
+	}
+	option = {
+		name = "Carriers will win the war on the seas in the upcoming war"
+		carrier_antiaircraft = 100
+		carrier_engine = 100
+		carrier_armour = 100
+		carrier_hanger = 100
+		load_oob = "12_carrier_practical.txt"
+	}
+	option = {
+		name = "Strategic bombing will allow us to smash enemy cities"
+		large_fueltank = 100
+		four_engine_airframe = 100
+		strategic_bomber_armament = 100
+		large_bomb = 100
+		load_oob = "15_four_engine_aircraft_practical.txt"
+	}
+	option = {
+		name = "Fighter planes will keep our air space clear of enemy bombers"
+		aeroengine = 100
+		small_fueltank = 100
+		single_engine_airframe = 100
+		single_engine_aircraft_armament =  100
+		load_oob = "15_single_engine_aircraft_practical.txt"
+	}
+	option = {
+		name = "Tanks will break through the enemy's lines"
+		tank_gun = 100
+		tank_engine = 100
+		tank_armour = 100
+		tank_reliability = 100
+		add_country_modifier = {
+			name = Tank_Focus
+			duration = 300
+		}
+	}
+	option = {
+		name = "Mobile units will outmanuever the enemy"
+		mechanised_infantry = 400
+		load_oob = "15_mobile_practical.txt"
+	}
+		
+}

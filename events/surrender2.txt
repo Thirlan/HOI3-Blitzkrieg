@@ -1,0 +1,192 @@
+# Formation of Vichy Regime
+country_event = {
+	
+	id = 504
+
+	is_triggered_only = yes
+
+	major = yes
+	
+	trigger = {
+		TAG = FRA
+		war_with = GER
+		NOT = { exists = VIC }
+		NOT = { has_country_flag = fr_signs_peace }
+	}
+
+	title = "EVTNAME504"
+	desc = "EVTDESC504"
+	picture = "VIC"
+
+	option = {
+		name = "EVTOPTA504"					# Continue the fight as Free France
+		ai_chance = { factor = 100 }
+		set_country_flag = fr_signs_peace
+#		northern_france_region = { secede_province = GER }
+#		western_france_region = { secede_province = GER }
+
+
+		france_mondane = { limit = {not = { controlled_by = ITA }
+			} 
+			secede_province = VIC add_core = VIC
+		}
+		
+		france_briancon = { limit = {not = { controlled_by = ITA }
+			} 
+			secede_province = VIC add_core = VIC
+		}
+		
+		france_nice = { limit = {not = { controlled_by = ITA }
+			} 
+			secede_province = VIC add_core = VIC
+		}
+		
+		FRA_4359 = { limit = {not = { controlled_by = ITA }
+			} 
+			secede_province = VIC add_core = VIC
+		}
+		
+		FRA_4027 = { limit = {not = { controlled_by = SPA }
+			} 
+			change_controller = GER
+		}
+		
+		FRA_3959 = { limit = {not = { controlled_by = SPA }
+			} 
+			secede_province = VIC add_core = VIC
+		}
+		
+		FRA_4099 = { limit = {not = { controlled_by = SPA }
+			} 
+			secede_province = VIC add_core = VIC
+		}
+		
+		southern_france_region = { add_core = VIC }
+		french_indochine_region = { add_core = VIC }
+		north_africa_region = { add_core = VIC }
+		syrian_region = { add_core = VIC }
+		
+		release = VIC
+		VIC = {
+			head_of_state = 57001
+			head_of_government = 57002
+			foreign_minister = 57002
+			armament_minister = 57019
+			minister_of_security = 57026
+			minister_of_intelligence = 57006
+			chief_of_staff = 57002
+			chief_of_army = 57034
+			chief_of_navy = 57002
+			chief_of_air = 57010
+			any_country = {
+				limit = { faction = axis }
+				non_aggression_pact = VIC
+			}
+			GER = { threat = { who = VIC value = -150 } }
+			GER = { guarantee = VIC }
+			neutrality = 100
+			
+			capital = 3484 # Vichy
+			infantry_brigade = 3484
+			infantry_brigade = 3484
+			infantry_brigade = 3484
+			infantry_brigade = 3484
+			infantry_brigade = 3484
+			infantry_brigade = 5299
+			infantry_brigade = 5299
+			infantry_brigade = 6236
+			infantry_brigade = 6236
+			FRA_10037 = { secede_province = FRA }
+			FRA_9921 = { secede_province = FRA }
+			FRA_9804 = { secede_province = FRA }
+			FRA_9860 = { secede_province = FRA }
+			9731 = { secede_province = FRA }
+			9858 = { secede_province = FRA }
+			add_core = 485
+			add_core = 10627
+			add_core = 7715
+			add_core = 7705
+		}
+		southern_france_region = { secede_province = VIC }
+		french_indochine_region = { secede_province = VIC }
+		north_africa_region = { secede_province = VIC }
+		syrian_region = { secede_province = VIC }
+		FRA_6178 = { add_core = VIC }
+		FRA_7704 = { add_core = VIC }
+		FRA_4359 = { add_core = VIC }
+		FRA_9933 = { add_core = VIC }
+		FRA_9867 = { add_core = VIC }
+		6178 = { secede_province = VIC }
+		6186 = { secede_province = VIC }
+		7705 = { secede_province = VIC }
+		7712 = { secede_province = VIC }
+		7709 = { secede_province = VIC }
+		7714 = { secede_province = VIC }
+		7715 = { secede_province = VIC }
+		7718 = { secede_province = VIC }
+		# Make sure Vichy is set up properly
+		FRA = {
+			national_unity = 90
+			##De Gaulle Cabinet##
+			head_of_state = 2031
+			head_of_government = 2031
+			minister_of_security = 2036
+			chief_of_staff = 2031
+			foreign_minister = 2061
+			armament_minister = 2088
+			minister_of_intelligence = 2134
+			chief_of_army = 2164
+			chief_of_navy = 2178
+			chief_of_air = 2193
+			join_faction = allies
+			10028 = { air_base = 4 }
+			infantry_brigade = 10028
+			infantry_brigade = 10028
+			infantry_brigade = 10028
+			infantry_brigade = 10028
+			infantry_brigade = 10028			
+		}
+		ITA = { country_event = 517 }
+		SPA = { country_event = 530 }
+		form_government_in_exile = yes
+	}
+}
+
+
+
+# Surrender by Vichy to the Allies
+country_event = {
+	
+	id = 518
+
+	is_triggered_only = yes
+	
+	major = yes
+
+	trigger = {
+		tag = VIC
+		FROM = { faction = allies }
+		FRA = { faction = allies }
+	}
+
+	title = "EVTNAME518" #There's no point in fighting anymore
+	desc = "EVTDESC518" #It seems we have underestimated the Allies. Now we are defeated and will rejoin Free France again.
+	picture = "Bitter_Peace"
+
+	option = {
+		name = "EVTOPTA518" #Reunited at last!
+		FRA = { split_troops = 1.0 }
+		VIC = {
+			any_owned = {
+				limit = {
+					exists = GER			
+					GER = { faction = axis }
+					controlled_by = VIC
+				}
+				change_controller = GER
+			}
+		}
+		FRA = { inherit = VIC }
+		FRA = { war_exhaustion = -5 }
+	}
+}

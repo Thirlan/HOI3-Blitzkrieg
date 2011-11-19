@@ -1,0 +1,20 @@
+diplomatic_decisions = {
+	Grand_Strategy = {
+		potential = {
+			not = { has_country_flag = picked_strategy }
+		}
+		effect = {
+			country_event = 1635
+			set_country_flag = picked_strategy
+		}
+	}
+	Inter_War_Focus = {
+		potential = {
+			not = { has_country_flag = picked_focus }
+		}
+		effect = {
+			country_event = 1636
+			set_country_flag = picked_focus
+		}
+	}
+}

@@ -1,0 +1,48 @@
+light_cruiser = {
+	type = naval
+	sprite = LightCruiser
+	active = no
+
+	hull = 1
+
+	#Size Definitions
+	max_strength = 100
+	default_organisation = 30
+	default_morale = 0.30
+	officers = 25
+
+	#Building Costs
+	build_cost_ic = 4.50
+	build_cost_manpower = 1.00
+	build_time = 280
+
+	#Misc Abilities
+	maximum_speed = 26.00
+	transport_capability = 0.00
+	supply_consumption = 0.36
+	fuel_consumption = 0.43
+	range = 2000.00
+	distance = 0.18
+	radio_strength = 1
+	
+	#Detection Abilities
+	surface_detection = 2.00
+	air_detection = 2.00
+	sub_detection = 3.00
+	visibility = 60.00
+
+	#Defensive Abilities
+	sea_defence = 12.00
+	air_defence = 5.00
+
+	#Offensive Abilities
+	convoy_attack = 3.00
+	sea_attack = 5.00
+	sub_attack = 2.00
+	air_attack = 2.00		#(aphro 20111117)5.00
+	shore_bombardment = 1.00
+
+	completion_size = 1.2
+	on_completion = cruiser_practical
+	priority = 5
+}

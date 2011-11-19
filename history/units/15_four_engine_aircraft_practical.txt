@@ -1,0 +1,1 @@
+four_engine_aircraft_practical = 15.000

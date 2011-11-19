@@ -1,0 +1,122 @@
+country_event = {
+	id = 1631
+	trigger = {
+			TAG = JAP
+			NOT = { has_country_flag = japan_demands_bases_in_indochina }
+			OR = {
+				controls = 6236  #Saigon
+				controls = 5917  #Hanoi
+			}
+	}
+	title = "Japan takes Indochina"
+	desc = "Japan decides to take Indochina via war.  America will be none too pleased."
+	option = {
+		name = "France deserved it"
+		set_country_flag = japan_demands_bases_in_indochina
+		relation = { who = VIC value = -10 }
+		relation = { who = USA value = -15 }
+		relation = { who = CGX value = -25 }
+		relation = { who = CYN value = -20 }
+		threat = { who = VIC value = 5 }
+		threat = { who = USA value = 5 }
+		neutrality = -5
+		USA = { country_event = 1802 }
+		set_country_flag = indochine_to_japan
+		ai_chance = { factor = 100 }
+	}
+}
+
+country_event = {
+	id = 1632
+	trigger = {
+			Tag = USA
+			CHI = {
+				OR = {	
+					government_in_exile = yes
+					faction = axis
+					exists = no
+					is_subject = yes
+				}
+			}
+			JAP = { war_with = ENG }
+			NOT = { has_country_flag = america_joins_against_japan }
+			AND = {
+				is_in_any_faction = no
+				NOT = { war_with = JAP }
+			}
+		}
+	title = "America joins war"
+	desc = "Japan has gone too far.  The British alone are not powerful enough to stop the Japanese.  We need to stop them ourselves."
+	option = {
+		name = "Hirohoito, I'm gunnin for ya!"
+		set_country_flag = america_joins_against_japan
+		join_faction = allies
+		}
+	
+	mean_time_to_happen = {
+		months = 4
+	}
+}
+
+country_event = {
+	id = 1633
+	trigger = {
+		TAG = USA
+		not = { has_country_flag = the_destroyers_for_bases_agreement_event }
+		exists = ENG
+		exists = GER
+		FRA = {
+			OR = {	
+				government_in_exile = yes
+				faction = axis
+				exists = no
+			}
+		}
+		war = no
+	}
+	title = "Destroyers for Bases Agreement"
+	desc = "Congress has just passed the Destroyers for Bases Agreement.  It is up to you Mr. President to sign it into law."
+	option = {
+		name = "I'll look at the bill"
+		set_country_flag = the_destroyers_for_bases_agreement_event
+	}
+	mean_time_to_happen = {
+		months = 1
+	}
+}
+
+country_event = {
+	id = 1634
+	trigger = {
+		tag = USA
+		not = { has_country_flag = lend_lease_act_event}
+		exists = ENG
+		exists = GER
+		FRA = {
+			OR = {	
+				government_in_exile = yes
+				faction = axis
+				exists = no
+			}
+		}
+		GER = {
+			war_with = ENG
+		}
+		
+		or = {
+			government = social_conservatism
+			government = spanish_social_conservatism
+			government = market_liberalism
+			government = social_democracy
+			government = social_liberalism
+		}
+	}
+	title = "Congress passes Lend-Lease for the British"
+	desc = "Congress has just passed Lend-Lease.  It is up to you Mr. President to sign it into law."
+	option = {
+		set_country_flag = lend_lease_act_event
+	}
+	mean_time_to_happen = {
+		months = 1
+	}
+}
