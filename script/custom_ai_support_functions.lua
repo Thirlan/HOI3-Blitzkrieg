@@ -1,5 +1,5 @@
 -----------------------------------------------------------
--- LUA Hearts of Iron 3 Custom support function file to help quantify valuable statistics to improve the minor coutry AI's estimates
+-- LUA Hearts of Iron 3 Custom support function file to help quantify valuable statistics to improve the minor country AI's estimates
 -- Created By: Thirlan
 -- Modified By: Thirlan
 -- Date Last Modified: 9/17/2011
@@ -109,9 +109,7 @@ end
 -- ============================================================================
 local _CUST_AHEAD_OF_TECH_PENALTY_ = 0.3
 
-function ResearchTime(minister, tech, nextLevel, researchYear)
-	local ministerCountry = minister:GetCountry()
-	local ai = minister:GetOwnerAI()
+function ResearchTime(ministerCountry, ai, tech, nextLevel, researchYear)
 	local techName = tostring(tech:GetKey())
 	
 	local techStatus = ministerCountry:GetTechnologyStatus()
@@ -146,8 +144,6 @@ function TechYearSkew(minister, tech, nextLevel, researchYear)
 end
 
 function CalculateWeightedTheoryScore(ministerCountry, techList)
-	local countryName = tostring(ministerCountry:GetCountryTag())
-	
 	local weightedScore = 0
 	local count = 0
 	for index, tech in pairs(techList) do
@@ -157,11 +153,60 @@ function CalculateWeightedTheoryScore(ministerCountry, techList)
 			local theoryScore = 1.0 * ministerCountry:GetAbility(bonus._pCategory)
 			local weight = bonus._vWeight:Get()
 			weightedScore = weightedScore + theoryScore * weight
-			--COUNTRY_DEBUG(ministerCountry, countryName .. " " .. techName .. " -> " .. tostring(bonus._pCategory:GetKey()) .. " " .. theoryScore .. " " .. weight )
+			--COUNTRY_DEBUG(ministerCountry, techName .. " -> " .. tostring(bonus._pCategory:GetKey()) .. " " .. theoryScore .. " " .. weight )
 		end
 	end
 	
 	return weightedScore / count
+end
+
+function CalculateResearchListETA(ministerCountry, ai, techList)
+	local techStatus = ministerCountry:GetTechnologyStatus()
+	local groupIncr = 0
+	local maxGroupTime = 0
+	local researchTime = 0
+	local totalTime = 0
+	local techLevel = 0
+	local currentYear = CurrentYear(ai)
+	-- assume a 75% efficiency with leadership
+	local totalAvailableLeadership = math.floor(0.75*ministerCountry:GetTotalLeadership():Get())
+	--COUNTRY_DEBUG(ministerCountry, "=========CalculateResearchListETA=============")
+	--COUNTRY_DEBUG(ministerCountry, "totalAvailableLeadership = "..totalAvailableLeadership)
+	for techName, req in pairs(techList) do
+		tech = CTechnologyDataBase.GetTechnology(techName)
+		techLevel = techStatus:GetLevel(tech)
+		if techLevel < req then
+			-- this is a rather complex algorithm because it is making a rough estimate of
+			-- of the total research time by grouping the research into groups whose size is 
+			-- equal to the available leadership. It finds the max research of a given 
+			-- group and adds it to the total.
+			researchTime = ResearchTime(ministerCountry, ai, tech, 1, currentYear)
+			maxGroupTime = math.max(researchTime, maxGroupTime)
+			groupIncr = groupIncr + (req-techLevel)
+			--COUNTRY_DEBUG(ministerCountry, "techName = "..techName)
+			--COUNTRY_DEBUG(ministerCountry, "req = "..req)
+			--COUNTRY_DEBUG(ministerCountry, "techLevel = "..techLevel)
+			--COUNTRY_DEBUG(ministerCountry, "researchTime = "..researchTime)
+			--COUNTRY_DEBUG(ministerCountry, "maxGroupTime = "..maxGroupTime)
+			if groupIncr >= totalAvailableLeadership then
+				totalTime = totalTime + maxGroupTime
+				groupIncr = groupIncr - totalAvailableLeadership
+				while groupIncr >= totalAvailableLeadership do
+					-- this one tech has enough req to fill one or more groups.
+					totalTime = totalTime + researchTime
+					groupIncr = groupIncr - totalAvailableLeadership
+				end
+			end
+			--COUNTRY_DEBUG(ministerCountry, "currentTotalTime = "..totalTime)
+		end
+	end
+	if groupIncr > 0 then
+		-- clean up the trailing techs that were too small to form a complete group
+		totalTime = totalTime + maxGroupTime
+	end
+	--COUNTRY_DEBUG(ministerCountry, "totalTime = "..totalTime)
+	--COUNTRY_DEBUG(ministerCountry, "==============================================")
+	return totalTime
 end
 
 -- ============================================================================
@@ -202,15 +247,11 @@ local _CUST_TRAINING_LAW_BOOST_ = { 0.90, 1.0, 1.1, 1.2}
 local _CUST_RESCUE_RATIO_ = 2
 local _CUST_IC_TO_SUPPLY_RATIO_ = 7
 
--- Use caching to avoid looking up the effective IC several times on the same date for the same country
-local effectiveICCache = {}
 function EffectiveIC(ministerCountry, ai)
-
-	local lookupKey = tostring(ministerCountry:GetCountryTag())
-	local effectiveICCacheValue = effectiveICCache[lookupKey]
-	local effectiveIC = 0
-	local currentYear = CurrentYear(ai)
-	if not effectiveICCacheValue or effectiveICCacheValue[2] ~= currentYear then
+	
+	local key = "EffectiveIC-"..tostring(ministerCountry:GetCountryTag())
+	local effectiveIC = GetCustCache(ai, key)
+	if not effectiveIC then
 		local consumerNeed = ministerCountry:GetProductionDistributionAt( CDistributionSetting._PRODUCTION_CONSUMER_):GetNeeded():Get()
 		local supplyNeed = SupplyNeedMultiplier(ministerCountry, ai) * ministerCountry:GetProductionDistributionAt( CDistributionSetting._PRODUCTION_SUPPLY_):GetNeeded():Get() 
 		local rareICPenalty = ImminentResourceShortageICPenalty( ministerCountry, _RARE_MATERIALS_)
@@ -219,24 +260,25 @@ function EffectiveIC(ministerCountry, ai)
 		
 		local resourcePenalty = math.min( math.min( rareICPenalty, metalICPenalty), energyICPenalty)
 		local unadjustedIC = ministerCountry:GetTotalIC()
-		effectiveIC = math.max(0, unadjustedIC - resourcePenalty - consumerNeed - supplyNeed)
+		-- resourcePenalty is a negative number
+		effectiveIC = math.max(0, unadjustedIC + resourcePenalty - consumerNeed - supplyNeed)
 		
 		-- always floor the effective IC to give a pessimistic view
 		-- and to smooth out noise
 		effectiveIC = math.floor(effectiveIC)
-		--COUNTRY_DEBUG(ministerCountry, "=============EffectiveIC======================")
-		--COUNTRY_DEBUG(ministerCountry, "unadjustedIC = " .. unadjustedIC)
-		--COUNTRY_DEBUG(ministerCountry, "consumerNeed = " .. consumerNeed)
-		--COUNTRY_DEBUG(ministerCountry, "supplyNeed = " .. supplyNeed)
-		--COUNTRY_DEBUG(ministerCountry, "resourcePenalty = " .. resourcePenalty)
-		--COUNTRY_DEBUG(ministerCountry, "    rareICPenalty = " .. rareICPenalty)
-		--COUNTRY_DEBUG(ministerCountry, "    metalICPenalty = " .. metalICPenalty)
-		--COUNTRY_DEBUG(ministerCountry, "    energyICPenalty = " .. energyICPenalty)
-		--COUNTRY_DEBUG(ministerCountry, "effectiveIC = " .. effectiveIC)
-		--COUNTRY_DEBUG(ministerCountry, "==============================================")
-		effectiveICCache[lookupKey] = {effectiveIC, currentYear}
-	else
-		effectiveIC = effectiveICCacheValue[1]
+		if false then
+			COUNTRY_DEBUG(ministerCountry, "=============EffectiveIC======================")
+			COUNTRY_DEBUG(ministerCountry, "unadjustedIC = " .. unadjustedIC)
+			COUNTRY_DEBUG(ministerCountry, "consumerNeed = " .. consumerNeed)
+			COUNTRY_DEBUG(ministerCountry, "supplyNeed = " .. supplyNeed)
+			COUNTRY_DEBUG(ministerCountry, "resourcePenalty = " .. resourcePenalty)
+			COUNTRY_DEBUG(ministerCountry, "    rareICPenalty = " .. rareICPenalty)
+			COUNTRY_DEBUG(ministerCountry, "    metalICPenalty = " .. metalICPenalty)
+			COUNTRY_DEBUG(ministerCountry, "    energyICPenalty = " .. energyICPenalty)
+			COUNTRY_DEBUG(ministerCountry, "effectiveIC = " .. effectiveIC)
+			COUNTRY_DEBUG(ministerCountry, "==============================================")
+		end
+		SetCustCache(ai, key, 2, effectiveIC)
 	end
 	
 	return effectiveIC
@@ -266,10 +308,8 @@ function EffectiveICMultiplierAtCurrent(ministerCountry)
 end
 
 function MiscICBoost(ministerCountry)
-	-- fetch current IC
 	local currentIC = ministerCountry:GetTotalIC()
 	--COUNTRY_DEBUG(ministerCountry,"currentIC = "..currentIC)
-	-- fetch max IC
 	local maxIC = ministerCountry:GetMaxIC()
 	--COUNTRY_DEBUG(ministerCountry,"maxIC = "..maxIC)
 
@@ -337,7 +377,7 @@ function InvestInIC(minister)
 		local constrEngineerResearchTime = 0
 		local countryTag = ministerCountry:GetCountryTag()
 		if constructionEngineer:CanResearch(countryTag) then
-			constrEngineerResearchTime = ResearchTime(minister, constructionEngineer, 1, CurrentYear(ai))
+			constrEngineerResearchTime = ResearchTime(ministerCountry, ai, constructionEngineer, 1, CurrentYear(ai))
 		end
 		--COUNTRY_DEBUG(ministerCountry, "constrEngineerResearchTime = " .. constrEngineerResearchTime)
 		
@@ -375,19 +415,18 @@ function InvestInIC(minister)
 end
 
 function HasICShortage(ministerCountry, ai)
+	local bestAvailableUnit = BestAvailableUnit(ministerCountry, ai)
 	local effectiveIC = EffectiveIC(ministerCountry, ai)
-	local favoriteUnit = FavoriteUnit(ministerCountry, ai)
-	local icCost = ministerCountry:GetBuildCostIC( favoriteUnit, 1, false):Get()
+	local icCost = ministerCountry:GetBuildCostIC( bestAvailableUnit, 1, false):Get()
 	return effectiveIC < icCost
 end
 
 -- ============================================================================
 -- MISC FUNCTIONS
 -- ============================================================================
-
 function COUNTRY_DEBUG(ministerCountry, message)
 	local countryName = tostring(ministerCountry:GetCountryTag())
-	if countryName == "CAN" then
+	if countryName == "POL" then
 		Utils.LUA_DEBUGOUT(countryName .." " .. message)
 	end
 end
@@ -396,7 +435,8 @@ function EffectiveManPower(ministerCountry)
 	local reinforceSlider = ministerCountry:GetProductionDistributionAt( CDistributionSetting._PRODUCTION_REINFORCEMENT_):GetNeeded():Get()
 	local effectiveManPower = ministerCountry:GetManpower():Get()
 	local unitList = ministerCountry:GetUnits()
-	effectiveManPower = effectiveManPower - 3.33*unitList:GetTotalAmountOfDivisions() - 1*unitList:GetTotalNumOfShips() - 1*unitList:GetTotalNumOfPlanes() - _CUST_SLIDER_TO_MANPOWER_RATIO_*reinforceSlider
+	local unitReserves = 3.33*unitList:GetTotalAmountOfDivisions() + 1*unitList:GetTotalNumOfShips() + 1*unitList:GetTotalNumOfPlanes()
+	effectiveManPower = effectiveManPower - 0.75*unitReserves - _CUST_SLIDER_TO_MANPOWER_RATIO_*reinforceSlider
 	effectiveManPower = math.max(0, effectiveManPower)
 	--COUNTRY_DEBUG(ministerCountry, "================EffectiveManPower============")
 	--COUNTRY_DEBUG(ministerCountry, "GetTotalAmountOfDivisions = "..ministerCountry:GetUnits():GetTotalAmountOfDivisions())
@@ -436,19 +476,37 @@ function DivisionDaysToMPDepletion(ministerCountry, ai, mainUnit, mainUnitCount,
 	return effectiveMP / mpConsumptionRatePerDay
 end
 
--- Use caching to avoid looking up value several times on the same date for the same country
-local daysTillResourceDepletionCache = {}
-function DaysTillResourceDepletion(ministerCountry, ai, resourceType)
+function ConstructLandDivision(ministerCountry, baseUnit, baseQuantity, supportUnit, supportQuantity)
+	local divisionList = SubUnitList()
+	local icCost = baseQuantity*ministerCountry:GetBuildCostIC( baseUnit, 1, false):Get()+supportQuantity*ministerCountry:GetBuildCostIC( baseUnit, 1, false)
+	local mpCost = baseQuantity*ministerCountry:GetBuildCostMP( baseUnit, false):Get()
+	local timeCost = ministerCountry:GetBuildTime( baseUnit, 1)
+	for baseCount = 1,baseQuantity do
+		SubUnitList.Append( divisionList, baseUnit )
+	end
+	if supportUnit then
+		icCost = icCost + supportQuantity*ministerCountry:GetBuildCostIC( supportUnit, 1, false)
+		mpCost = mpCost + supportQuantity*ministerCountry:GetBuildCostMP( supportUnit, false):Get()
+		timeCost = math.max(timeCost, ministerCountry:GetBuildTime( supportUnit, 1))
+		for supportCount = 1,supportQuantity do
+			SubUnitList.Append( divisionList, supportUnit )
+		end
+	end
+	return icCost, mpCost, timeCost, divisionList
+end
 
-	local lookupKey = tostring(ministerCountry:GetCountryTag()).."-"..resourceType
-	local daysTillResourceDepletionCacheValue = daysTillResourceDepletionCache[lookupKey]
-	local daysTillDepleted = nil
-	local currentYear = CurrentYear(ai)
-	if not daysTillResourceDepletionCacheValue or daysTillResourceDepletionCacheValue[2] ~= currentYear then 
-	
+function EffectiveUnitBuildTime(ministerCountry, ai, subUnit)
+	local buildTime = ministerCountry:GetBuildTime( subUnit, 1)
+	local icCost = mainUnitCount*ministerCountry:GetBuildCostIC( subUnit, 3, false):Get()
+end
+
+function DaysTillResourceDepletion(ministerCountry, ai, resourceType)
+	local key = "DaysTillResourceDepletion-"..resourceType.."-"..tostring(ministerCountry:GetCountryTag())
+	local daysTillDepleted = GetCustCache(ai, key)
+
+	if not daysTillDepleted then 
 		local resourceData = CResourceValues()
 		resourceData:GetResourceValues(ministerCountry, laCrossValue[resourceType])
-		--local dailyIncome = resourceData.vDailyIncome
 		
 		local dailyBalance = resourceData.vDailyBalance
 		local daysTillWar = DaysTillWar(ministerCountry, ai)
@@ -458,13 +516,15 @@ function DaysTillResourceDepletion(ministerCountry, ai, resourceType)
 		if adjustedPool <= 0 or ministerCountry:IsAtWar() then
 			if dailyBalance < 0 then
 				daysTillDepleted = -1.0*pool/dailyBalance
-				--COUNTRY_DEBUG(ministerCountry, "=========DaysTillResourceDepletion===========")
-				--COUNTRY_DEBUG(ministerCountry, "resourceType = "..resourceType)
-				--COUNTRY_DEBUG(ministerCountry, "dailyBalance = "..dailyBalance)
-				--COUNTRY_DEBUG(ministerCountry, "pool = "..pool)
-				--COUNTRY_DEBUG(ministerCountry, "adjustedPool = "..adjustedPool)
-				--COUNTRY_DEBUG(ministerCountry, "daysTillDepleted = "..daysTillDepleted)
-				--COUNTRY_DEBUG(ministerCountry, "=============================================")
+				if false then
+					COUNTRY_DEBUG(ministerCountry, "=========DaysTillResourceDepletion===========")
+					COUNTRY_DEBUG(ministerCountry, "resourceType = "..resourceType)
+					COUNTRY_DEBUG(ministerCountry, "dailyBalance = "..dailyBalance)
+					COUNTRY_DEBUG(ministerCountry, "pool = "..pool)
+					COUNTRY_DEBUG(ministerCountry, "adjustedPool = "..adjustedPool)
+					COUNTRY_DEBUG(ministerCountry, "daysTillDepleted = "..daysTillDepleted)
+					COUNTRY_DEBUG(ministerCountry, "=============================================")
+				end
 			end
 		else
 			local icChangeAtWar = ICChangeAtDayOfWar(ministerCountry)
@@ -478,21 +538,21 @@ function DaysTillResourceDepletion(ministerCountry, ai, resourceType)
 			local dailyWarBalance = (1+ResourceBoostAtDayOfWar(ministerCountry)) * dailyHome - resourceData.vDailyExpense - icWarConsumption
 			if dailyWarBalance < 0 then
 				daysTillDepleted = -1.0*adjustedPool/(dailyWarBalance) + daysTillWar
-				--COUNTRY_DEBUG(ministerCountry, "=========DaysTillResourceDepletion===========")
-				--COUNTRY_DEBUG(ministerCountry, "resourceType = "..resourceType)
-				--COUNTRY_DEBUG(ministerCountry, "dailyBalance = "..dailyBalance)
-				--COUNTRY_DEBUG(ministerCountry, "pool = "..pool)
-				--COUNTRY_DEBUG(ministerCountry, "adjustedPool = "..adjustedPool)
-				--COUNTRY_DEBUG(ministerCountry, "icChangeAtWar = "..icChangeAtWar)
-				--COUNTRY_DEBUG(ministerCountry, "icWarConsumption = "..icWarConsumption)
-				--COUNTRY_DEBUG(ministerCountry, "dailyWarBalance = "..dailyWarBalance)
-				--COUNTRY_DEBUG(ministerCountry, "daysTillDepleted = "..daysTillDepleted)
-				--COUNTRY_DEBUG(ministerCountry, "=============================================")
+				if false then
+					COUNTRY_DEBUG(ministerCountry, "=========DaysTillResourceDepletion===========")
+					COUNTRY_DEBUG(ministerCountry, "resourceType = "..resourceType)
+					COUNTRY_DEBUG(ministerCountry, "dailyBalance = "..dailyBalance)
+					COUNTRY_DEBUG(ministerCountry, "pool = "..pool)
+					COUNTRY_DEBUG(ministerCountry, "adjustedPool = "..adjustedPool)
+					COUNTRY_DEBUG(ministerCountry, "icChangeAtWar = "..icChangeAtWar)
+					COUNTRY_DEBUG(ministerCountry, "icWarConsumption = "..icWarConsumption)
+					COUNTRY_DEBUG(ministerCountry, "dailyWarBalance = "..dailyWarBalance)
+					COUNTRY_DEBUG(ministerCountry, "daysTillDepleted = "..daysTillDepleted)
+					COUNTRY_DEBUG(ministerCountry, "=============================================")
+				end
 			end
 		end
-		daysTillResourceDepletionCache[lookupKey] = { daysTillDepleted, currentYear }
-	else
-		daysTillDepleted = daysTillResourceDepletionCacheValue[1]
+		SetCustCache(ai, key, 2, daysTillDepleted)
 	end
 	
 	return daysTillDepleted
@@ -535,45 +595,100 @@ function ImminentResourceShortageICPenalty(ministerCountry, resourceType)
 	return ICPenalty
 end
 
-local favoriteUnitCache = {}
-function FavoriteUnit(ministerCountry, ai)
-	
-	local lookupKey = tostring(ministerCountry:GetCountryTag())
-	local favoriteUnitCacheValue = favoriteUnitCache[lookupKey]
-	local favoriteUnit = nil
-	local currentYear = CurrentYear(ai)
-	
-	if not favoriteUnitCacheValue or favoriteUnitCacheValue[2] ~= currentYear then
-		-- Move up the chain of units until we find one that we can build and wont deplete us
-		local minDaysToCollapse = MinDaysToCollapse(ministerCountry, ai)
-		favoriteUnit = CSubUnitDataBase.GetSubUnit("militia_brigade")
-		if DivisionDaysToMPDepletion(ministerCountry, ai, favoriteUnit, 3, nil, 0) < minDaysToCollapse then
-			favoriteUnit = CSubUnitDataBase.GetSubUnit("infantry_brigade")
-			if DivisionDaysToMPDepletion(ministerCountry, ai, favoriteUnit, 3, nil, 0) < minDaysToCollapse then
-				-- we're into specialized units now!
-				if IsMountainous(ministerCountry) then
-					favoriteUnit = CSubUnitDataBase.GetSubUnit("bergsjaeger_brigade")
-				elseif IsJungleAndIsland(ministerCountry) then
-					favoriteUnit = CSubUnitDataBase.GetSubUnit("marine_brigade")
-				else
-					local fuelData = CResourceValues()
-					fuelData:GetResourceValues(ministerCountry, laCrossValue[_FUEL_])
-					local fuelIncome = fuelData.vDailyIncome
-					-- motorised units are VERY expensive to build, maintain and research. 
-					-- Make sure only powerful countries consider this option.
-					if fuelIncome > 0 and not HasICResourceShortage(ministerCountry, ai) then
-						-- we have fuel and our economy is in order so build Motorised!
-						favoriteUnit = CSubUnitDataBase.GetSubUnit("motorized_brigade")
-					else
-						favoriteUnit = CSubUnitDataBase.GetSubUnit("bergsjaeger_brigade")
-					end
-				end
-			end
+function GetTotalSubUnitsBuiltByCollapse(ministerCountry, ai, subUnit)
+	local totalBuilt = 0
+	local daysToBuild = MinDaysToCollapse(ministerCountry, ai)
+	local unitRequirementTable = GetUnitRequirementTable(subUnit)
+	local researchTime = 0
+	if unitRequirementTable then
+		researchTime = CalculateResearchListETA(ministerCountry, ai, unitRequirementTable)
+	end
+	daysToBuild = daysToBuild - researchTime
+	if daysToBuild > 0 then
+		local icCost, mpCost, timeCost, divisionList = ConstructLandDivision(ministerCountry, subUnit, 1, nil, 0)
+		local MPRemaining = EffectiveManPower(ministerCountry)
+		local effectiveIC = EffectiveIC(ministerCountry, ai)
+		totalBuilt = math.min((effectiveIC/icCost)*(daysToBuild/timeCost),
+								MPRemaining/mpCost)
+		totalBuilt = math.floor(totalBuilt)
+		if false then
+			COUNTRY_DEBUG(ministerCountry, "=========GetTotalSubUnitsBuiltByCollapse===========")
+			COUNTRY_DEBUG(ministerCountry, "researchTime = ".. researchTime)
+			COUNTRY_DEBUG(ministerCountry, "daysToBuild = ".. daysToBuild)
+			COUNTRY_DEBUG(ministerCountry, "icCost = ".. icCost)
+			COUNTRY_DEBUG(ministerCountry, "mpCost = ".. mpCost)
+			COUNTRY_DEBUG(ministerCountry, "timeCost = ".. timeCost)
+			COUNTRY_DEBUG(ministerCountry, "MPRemaining = ".. MPRemaining)
+			COUNTRY_DEBUG(ministerCountry, "effectiveIC = ".. effectiveIC)
+			COUNTRY_DEBUG(ministerCountry, "total "..tostring(subUnit:GetKey()).." Built = ".. totalBuilt)
+			COUNTRY_DEBUG(ministerCountry, "==================================================")
 		end
-		--COUNTRY_DEBUG(ministerCountry, "Favorite Unit is ".. tostring(favoriteUnit:GetKey()))
-		favoriteUnitCache[lookupKey] = { favoriteUnit, currentYear }
-	else
-		favoriteUnit = favoriteUnitCacheValue[1]
+	end
+	return totalBuilt
+end
+
+function FavoriteUnit(ministerCountry, ai)
+	local key = "FavoriteUnit-"..tostring(ministerCountry:GetCountryTag())
+	local favoriteUnit = GetCustCache(ai, key)
+	
+	if not favoriteUnit then
+		--local unitList = ministerCountry:GetUnits() this is currently useless since it always returns 0 for
+		-- all the units.
+		local maxValue = 0
+		local subUnit = CSubUnitDataBase.GetSubUnit("infantry_brigade")
+		local weight = ministerCountry:GetBuildCostIC( subUnit, 1, false):Get()
+		local subUnitCount = weight*(GetTotalSubUnitsBuiltByCollapse(ministerCountry, ai, subUnit)+GetTotalUnitCount(ministerCountry, subUnit))
+		favoriteUnit = subUnit
+		maxValue = subUnitCount
+		COUNTRY_DEBUG(ministerCountry, tostring(subUnit:GetKey()).." subUnitCount = ".. subUnitCount)
+		
+		subUnit = CSubUnitDataBase.GetSubUnit("militia_brigade")
+		weight = ministerCountry:GetBuildCostIC( subUnit, 1, false):Get()
+		subUnitCount = weight*(GetTotalSubUnitsBuiltByCollapse(ministerCountry, ai, subUnit)+GetTotalUnitCount(ministerCountry, subUnit))
+		if subUnitCount > maxValue then
+			favoriteUnit = subUnit
+			maxValue = subUnitCount
+		end
+		COUNTRY_DEBUG(ministerCountry, tostring(subUnit:GetKey()).." subUnitCount = ".. subUnitCount)
+		
+		if IsJungleAndIsland(ministerCountry) then
+			subUnit = CSubUnitDataBase.GetSubUnit("marine_brigade")
+			weight = ministerCountry:GetBuildCostIC( subUnit, 1, false):Get()
+			subUnitCount = weight*(GetTotalSubUnitsBuiltByCollapse(ministerCountry, ai, subUnit)+GetTotalUnitCount(ministerCountry, subUnit))
+			if subUnitCount > maxValue then
+				favoriteUnit = subUnit
+				maxValue = subUnitCount
+			end
+			COUNTRY_DEBUG(ministerCountry, tostring(subUnit:GetKey()).." subUnitCount = ".. subUnitCount)
+		else
+			subUnit = CSubUnitDataBase.GetSubUnit("bergsjaeger_brigade")
+			weight = ministerCountry:GetBuildCostIC( subUnit, 1, false):Get()
+			subUnitCount = weight*(GetTotalSubUnitsBuiltByCollapse(ministerCountry, ai, subUnit)+GetTotalUnitCount(ministerCountry, subUnit))
+			if subUnitCount > maxValue then
+				favoriteUnit = subUnit
+				maxValue = subUnitCount
+			end
+			COUNTRY_DEBUG(ministerCountry, tostring(subUnit:GetKey()).." subUnitCount = ".. subUnitCount)
+		end
+		
+		local fuelData = CResourceValues()
+		fuelData:GetResourceValues(ministerCountry, laCrossValue[_FUEL_])
+		if fuelData.vDailyIncome > 0 then
+			subUnit = CSubUnitDataBase.GetSubUnit("motorized_brigade")
+			weight = ministerCountry:GetBuildCostIC( subUnit, 1, false):Get()
+			subUnitCount = weight*(GetTotalSubUnitsBuiltByCollapse(ministerCountry, ai, subUnit)+GetTotalUnitCount(ministerCountry, subUnit))
+			if subUnitCount > maxValue then
+				favoriteUnit = subUnit
+				maxValue = subUnitCount
+			end
+			COUNTRY_DEBUG(ministerCountry, tostring(subUnit:GetKey()).." subUnitCount = ".. subUnitCount)
+		end
+			
+		COUNTRY_DEBUG(ministerCountry, "Favorite Unit is ".. tostring(favoriteUnit:GetKey()))
+		if IsTotalUnitListSet(ministerCountry) then
+			-- hold off on caching this until this data is set
+			SetCustCache(ai, key, 31, favoriteUnit)
+		end
 	end
 	
 	return favoriteUnit
@@ -625,16 +740,12 @@ end
 
 -- Sometimes the favorite unit is just out of reach and so we need to build alternatives
 -- while we wait
-local bestAvailableUnitCache = {}
 function BestAvailableUnit(ministerCountry, ai)
+	local key = "BestAvailableUnit-"..tostring(ministerCountry:GetCountryTag())
+	local bestAvailableUnit = GetCustCache(ai, key)
+	local favoriteUnit = FavoriteUnit(ministerCountry, ai)
 	
-	local lookupKey = tostring(ministerCountry:GetCountryTag())
-	local bestAvailableUnitCacheValue = bestAvailableUnitCache[lookupKey]
-	local currentYear = CurrentYear(ai)
-	local bestAvailableUnit = nil
-
-	if not bestAvailableUnitCacheValue or bestAvailableUnitCacheValue[2] ~= currentYear then
-		local favoriteUnit = FavoriteUnit(ministerCountry, ai)
+	if not bestAvailableUnit then
 		local techStatus = ministerCountry:GetTechnologyStatus()
 		if techStatus:IsUnitAvailable(favoriteUnit) then
 			bestAvailableUnit = favoriteUnit
@@ -643,7 +754,6 @@ function BestAvailableUnit(ministerCountry, ai)
 			local infantryUnit = CSubUnitDataBase.GetSubUnit("infantry_brigade")
 			if favoriteUnitName == "motorized_brigade" or
 			   favoriteUnitName == "bergsjaeger_brigade" or
-			   favoriteUnitName == "motorized_brigade" or
 			   favoriteUnitName == "marine_brigade" and
 			   techStatus:IsUnitAvailable(infantryUnit) then
 				bestAvailableUnit = infantryUnit
@@ -651,10 +761,11 @@ function BestAvailableUnit(ministerCountry, ai)
 				bestAvailableUnit = CSubUnitDataBase.GetSubUnit("militia_brigade")
 			end
 		end
-		--COUNTRY_DEBUG(ministerCountry, "Best available unit is ".. tostring(bestAvailableUnit:GetKey()))
-		bestAvailableUnitCache[lookupKey] = { bestAvailableUnit, currentYear }
-	else
-		bestAvailableUnit = bestAvailableUnitCacheValue[1]
+		COUNTRY_DEBUG(ministerCountry, "Best available unit is ".. tostring(bestAvailableUnit:GetKey()))
+		if IsTotalUnitListSet(ministerCountry) then
+			-- hold off on caching this until we have better data
+			SetCustCache(ai, key, 31, bestAvailableUnit)
+		end
 	end
 	
 	return bestAvailableUnit
@@ -852,6 +963,11 @@ local _CUST_UNIT_TECH_REQUIREMENT_ = {
 	["engineer_brigade"] = {
 		["engineer_brigade_activation"] = 1,
 		["industral_production"] = 1
+	},
+	
+	["tank_destroyer_brigade"] = {
+		["lighttank_brigade"] = 1,
+		["lighttank_armour"] = 1
 	}
 }
 function IsUnitRequirement(favoriteUnit, tech)
@@ -867,14 +983,20 @@ function IsUnitRequirement(favoriteUnit, tech)
 	return result
 end
 
+function GetUnitRequirementTable(favoriteUnit)
+	local result = nil
+	if favoriteUnit then
+		local favoriteUnitKey = tostring(favoriteUnit:GetKey())
+		result = _CUST_UNIT_TECH_REQUIREMENT_[favoriteUnitKey]
+	end
+	return result
+end
+
 -- This is a complex function that caches data and statistically analyzes the effects of the officer slider
 -- on the officer ratio and returns the rate of change per day of this relationship.
 -- The function takes a few game days before all the nil values are filled in and it starts to
 -- return meaningful data.
-local officerStatsLookup = { }
 function OfficerRatioRateOfChange(ministerCountry, ai, countryTag, currentOfficerSlider)	
-	local lookupKey = tostring(countryTag)
-	local cachedOfficerStats = officerStatsLookup[lookupKey]
 	local officerRatio = ministerCountry:GetOfficerRatio():Get()
 	local currentYear = CurrentYear(ai)
 	-- [1] is the officer percent value
@@ -885,6 +1007,8 @@ function OfficerRatioRateOfChange(ministerCountry, ai, countryTag, currentOffice
 	local officerStats = { officerRatio, currentYear, nil, nil, 0}
 	local hasChanged = false
 	
+	local key = "OfficerRatioRateOfChange-"..tostring(ministerCountry:GetCountryTag())
+	local cachedOfficerStats = GetCustCache(ai, key)
 	if cachedOfficerStats then
 		-- don't compute futher until we have a real value for this
 		if cachedOfficerStats[5] and cachedOfficerStats[2] < currentYear then
@@ -892,43 +1016,40 @@ function OfficerRatioRateOfChange(ministerCountry, ai, countryTag, currentOffice
 			local diffRatio = officerStats[1] - cachedOfficerStats[1]
 			-- if the difference in the days is too big or too small then the samples are no good
 			-- if the change in officerRatio is negative or unchanged then that's no good either since it will imply that the officer slider results in negative changes
-			if diffDays < 180 then
-				if 0 < diffDays and 0 < diffRatio and currentOfficerSlider > 0 then
-					officerChange = diffRatio/diffDays
-					
-					-- Use the cache's Officer Slider values since that is where the old samples are stored.
-					-- we use older samples and not current samples for the following reasons:
-					-- 1. We're currently calculating the new Officer percent! So we can't use it in it's own calculation
-					-- 2. The old Officer slider's effects can only be observed now.
-					local ratioRateOfChange = officerChange/currentOfficerSlider
-					
-					hasChanged = true
-					officerStats[5] = cachedOfficerStats[5] + 1
-					if cachedOfficerStats[5] > 0 then
-						-- Don't immediately start collecting. Skip a sample to get better data.
-						if not officerStats[3] then
-							officerStats[3] = officerChange
-							officerStats[4] = ratioRateOfChange
-						else
-							--officerStats[4] = cachedOfficerStats[4] * cachedOfficerStats[5]/officerStats[5]  + ratioRateOfChange/officerStats[5]
-							officerStats[3] = cachedOfficerStats[3] * 0.75 + officerChange*0.25
-							officerStats[4] = cachedOfficerStats[4] * 0.75 + ratioRateOfChange*0.25
-						end
+			if 0 < diffRatio and currentOfficerSlider > 0 then
+				officerChange = diffRatio/diffDays
+				
+				-- Use the cache's Officer Slider values since that is where the old samples are stored.
+				-- we use older samples and not current samples for the following reasons:
+				-- 1. We're currently calculating the new Officer percent! So we can't use it in it's own calculation
+				-- 2. The old Officer slider's effects can only be observed now.
+				local ratioRateOfChange = officerChange/currentOfficerSlider
+				
+				hasChanged = true
+				officerStats[5] = cachedOfficerStats[5] + 1
+				if cachedOfficerStats[5] > 0 then
+					-- Don't immediately start collecting. Skip a sample to get better data.
+					if not officerStats[3] then
+						officerStats[3] = officerChange
+						officerStats[4] = ratioRateOfChange
+					else
+						--officerStats[4] = cachedOfficerStats[4] * cachedOfficerStats[5]/officerStats[5]  + ratioRateOfChange/officerStats[5]
+						officerStats[3] = cachedOfficerStats[3] * 0.75 + officerChange*0.25
+						officerStats[4] = cachedOfficerStats[4] * 0.75 + ratioRateOfChange*0.25
 					end
-					--PrintOfficerStats(ministerCountry, cachedOfficerStats)
-				else
-					-- nothing changed, but pass on the previous data
-					officerStats[1] = cachedOfficerStats[1]
-					officerStats[2] = cachedOfficerStats[2]
-					officerStats[3] = cachedOfficerStats[3]
-					officerStats[4] = cachedOfficerStats[4]
-					officerStats[5] = cachedOfficerStats[5]
 				end
+				--PrintOfficerStats(ministerCountry, cachedOfficerStats)
+			else
+				-- nothing changed, but pass on the previous data
+				officerStats[1] = cachedOfficerStats[1]
+				officerStats[2] = cachedOfficerStats[2]
+				officerStats[3] = cachedOfficerStats[3]
+				officerStats[4] = cachedOfficerStats[4]
+				officerStats[5] = cachedOfficerStats[5]
 			end
 		end
 	end
-	
-	officerStatsLookup[lookupKey] = officerStats
+	SetCustCache(ai, key, 180, officerStats)
 	
 	if hasChanged then
 		--PrintOfficerStats(ministerCountry, officerStats)
@@ -1015,42 +1136,93 @@ function GetConstructionPractical(minister)
 end
 
 function SuggestTrainingLaw(ministerCountry, ai)
-	local bestAvailableUnit = BestAvailableUnit(ministerCountry, ai)
-	local daysToDepletion = DivisionDaysToMPDepletion(ministerCountry, ai, bestAvailableUnit, 3, nil, 0)
-	local daysToCollapse = MinDaysToCollapse(ministerCountry, ai)
-	
 	local minimalTraining = CLawDataBase.GetLaw(_MINIMAL_TRAINING_)
 	local trainingLawGroup = minimalTraining:GetGroup()
 	local currentTrainingLawIndex = ministerCountry:GetLaw(trainingLawGroup):GetIndex()
-	local currentAdjustedIndex = currentTrainingLawIndex-minimalTraining:GetIndex()+1
-	local adjustment = _CUST_TRAINING_LAW_BOOST_[1] - _CUST_TRAINING_LAW_BOOST_[currentAdjustedIndex]
-	local idealLaw = _SPECIALIST_TRAINING_
-	
-	-- TODO: reorganize the if statements to be more efficient
-	if daysToCollapse < (1+adjustment)*daysToDepletion then
-		idealLaw = _MINIMAL_TRAINING_
-		--COUNTRY_DEBUG(ministerCountry, "Suggesting MINIMAL_TRAINING")
-	else
-		adjustment = _CUST_TRAINING_LAW_BOOST_[2] - _CUST_TRAINING_LAW_BOOST_[currentAdjustedIndex]
+
+	local key = "SuggestTrainingLaw-"..tostring(ministerCountry:GetCountryTag())
+	local idealLaw = GetCustCache(ai, key)
+	if not idealLaw then
+		
+		local bestAvailableUnit = BestAvailableUnit(ministerCountry, ai)
+		local daysToDepletion = DivisionDaysToMPDepletion(ministerCountry, ai, bestAvailableUnit, 3, nil, 0)
+		local daysToCollapse = MinDaysToCollapse(ministerCountry, ai)
+		
+		local currentAdjustedIndex = currentTrainingLawIndex-minimalTraining:GetIndex()+1
+		local adjustment = _CUST_TRAINING_LAW_BOOST_[1] - _CUST_TRAINING_LAW_BOOST_[currentAdjustedIndex]
+		local idealLaw = _SPECIALIST_TRAINING_
+		
+		-- TODO: reorganize the if statements to be more efficient
 		if daysToCollapse < (1+adjustment)*daysToDepletion then
-			idealLaw = _BASIC_TRAINING_
-			--COUNTRY_DEBUG(ministerCountry, "Suggesting BASIC_TRAINING")
+			idealLaw = _MINIMAL_TRAINING_
+			--COUNTRY_DEBUG(ministerCountry, "Suggesting MINIMAL_TRAINING")
 		else
-			adjustment = _CUST_TRAINING_LAW_BOOST_[3] - _CUST_TRAINING_LAW_BOOST_[currentAdjustedIndex]
+			adjustment = _CUST_TRAINING_LAW_BOOST_[2] - _CUST_TRAINING_LAW_BOOST_[currentAdjustedIndex]
 			if daysToCollapse < (1+adjustment)*daysToDepletion then
-				idealLaw = _ADVANCED_TRAINING_
-				--COUNTRY_DEBUG(ministerCountry, "Suggesting ADVANCED_TRAINING")
+				idealLaw = _BASIC_TRAINING_
+				--COUNTRY_DEBUG(ministerCountry, "Suggesting BASIC_TRAINING")
 			else
-				--COUNTRY_DEBUG(ministerCountry, "Suggesting SPECIALIST_TRAINING")
+				adjustment = _CUST_TRAINING_LAW_BOOST_[3] - _CUST_TRAINING_LAW_BOOST_[currentAdjustedIndex]
+				if daysToCollapse < (1+adjustment)*daysToDepletion then
+					idealLaw = _ADVANCED_TRAINING_
+					--COUNTRY_DEBUG(ministerCountry, "Suggesting ADVANCED_TRAINING")
+				else
+					--COUNTRY_DEBUG(ministerCountry, "Suggesting SPECIALIST_TRAINING")
+				end
 			end
 		end
+		SetCustCache(ai, key, 31, idealLaw)
 	end
 	
-	if currentTrainingLawIndex == idealLaw then
+	if idealLaw and currentTrainingLawIndex == idealLaw then
 		idealLaw = nil
 	end
 	
 	return idealLaw
+end
+
+-- Weird Function created to store this data so that other ministers, such as the research minister
+-- can access this FUCKING IMPORTANT INFORMATION!
+local totalUnitList = {}
+function SetTotalUnitList(ministerCountry, productionMinisterAI)
+	local productionList = productionMinisterAI:GetProductionSubUnitCounts()
+	local currentList = productionMinisterAI:GetDeployedSubUnitCounts()
+	local countryTag = ministerCountry:GetCountryTag()
+	local countryUnitList = totalUnitList[tostring(countryTag)]
+	if not countryUnitList then
+		countryUnitList = {}
+	end
+	for subUnit in CSubUnitDataBase.GetSubUnitList() do
+		local unitIndex = subUnit:GetIndex()
+		local unitName = tostring(subUnit:GetKey())
+		local unitCount = productionList:GetAt(unitIndex)+currentList:GetAt(unitIndex)
+		COUNTRY_DEBUG(ministerCountry, unitName.." = "..unitCount)
+		countryUnitList[unitIndex] = unitCount
+	end
+	CSetVariableCommand(countryTag, 
+	totalUnitList[tostring(countryTag)] = countryUnitList
+end
+
+function IsTotalUnitListSet(ministerCountry)
+	local countryTag = ministerCountry:GetCountryTag()
+	local countryUnitList = totalUnitList[tostring(countryTag)]
+	-- 46 being the total number of units available
+	return countryUnitList and table.getn(countryUnitList) > 46
+end
+
+-- For this function to work, SetTotalUnitList above must be called in the production minister first
+-- NOTE: when CCountry:GetUnits:GetCount(subUnit)) starts working then ditch this function
+function GetTotalUnitCount(ministerCountry, subUnit)
+	local countryTag = ministerCountry:GetCountryTag()
+	local countryUnitList = totalUnitList[tostring(countryTag)]
+	local count = 0
+	if countryUnitList then
+		count = countryUnitList[subUnit:GetIndex()]
+		if not count then
+			count = 0
+		end
+	end
+	return count
 end
 
 function HasManPowerShortage(ministerCountry, ai)
@@ -1064,6 +1236,50 @@ end
 
 function IsMajorPower(ministerCountry)
 	return ministerCountry:GetMaxIC() >= 60 and ministerCountry:IsMajor()
+end
+
+local _CUST_CACHE_ARRAY_ = {}
+function SetCustCache(ai, key, daysToCache, cacheObject)
+	_CUST_CACHE_ARRAY_[key] = {CurrentYear(ai), daysToCache, cacheObject}
+end
+
+function GetCustCache(ai, key)
+	local cacheObject = nil
+	local cacheArray = _CUST_CACHE_ARRAY_[key]
+	if cacheArray then
+		local dateCached = cacheArray[1]
+		local dayDiff = (CurrentYear(ai)-dateCached) * _CUST_DAYS_IN_YEAR_
+		local daysToCache = cacheArray[2]
+		if 0 <= dayDiff and dayDiff <= daysToCache then
+			cacheObject = cacheArray[3]
+		end
+	end
+	return cacheObject
+end
+
+function IsStartOfGame(ai)
+	local daysSinceGameStartKey = "daysSinceGameStartKey"
+	local daysSinceGameStart = GetCustCache(ai, daysSinceGameStartKey)
+	local isStartOfGame = false
+	local daysTillStartOfGameIsOver = 14
+	if not daysSinceGameStart then
+		SetCustCache(ai, daysSinceGameStartKey, 99999, 1)
+		isStartOfGame = true
+	elseif daysSinceGameStart < daysTillStartOfGameIsOver then
+		SetCustCache(ai, daysSinceGameStartKey, 99999, daysSinceGameStart+1)
+		isStartOfGame = true
+	end
+	return isStartOfGame
+end
+
+function PrintUnits(ministerCountry)
+	for aUnit in ministerCountry:GetUnitsIterator() do
+		COUNTRY_DEBUG(ministerCountry, tostring(aUnit:GetName()))
+		local unitMetaTable = getmetatable(aUnit)
+		for k,v in pairs(unitMetaTable) do
+			COUNTRY_DEBUG(ministerCountry, "    "..k)
+		end
+	end
 end
 
 function Round(num) 

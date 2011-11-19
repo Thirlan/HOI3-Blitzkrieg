@@ -38,7 +38,7 @@ function BalanceProductionSliders_Modded_AI(ai, ministerCountry, prioSelection,
 	local pProduction = 0
 	local pUpgrade = 0
 	
-	-- COUNTRY_DEBUG(ministerCountry, "Using modded AI!")
+	--COUNTRY_DEBUG(ministerCountry, "Using BalanceProductionSliders_Modded_AI")
 	
 	-- Start with consumer products... since it is always required
 	local consumerNeed = ministerCountry:GetProductionDistributionAt( CDistributionSetting._PRODUCTION_CONSUMER_):GetNeeded():Get()
@@ -102,9 +102,13 @@ end
 
 function ProductionMinister_Tick_Modded_AI(minister)
 	local ministerCountry = minister:GetCountry()
+	local ai = minister:GetOwnerAI()
 	local ICAllocated = ministerCountry:GetICPart(CDistributionSetting._PRODUCTION_PRODUCTION_):Get()
 	local ICUsed = ministerCountry:GetUsedIC():Get()
 	local ICRemaining = ICAllocated - ICUsed
+	--COUNTRY_DEBUG(ministerCountry, "Using ProductionMinister_Tick_Modded_AI")
+	-- store this valuable data so that other ministers can access this data using GetTotalUnitCount
+	SetTotalUnitList(ministerCountry, ai)
 	
 	----COUNTRY_DEBUG(ministerCountry, "ICRemaining: ".. ICRemaining)
 	ICRemaining = EvaluateConvoys(minister, ICRemaining)
@@ -199,39 +203,56 @@ function EvaluateMilitary(minister, ICRemaining)
 	local ai = minister:GetOwnerAI()
 	local techStatus = ministerCountry:GetTechnologyStatus()
 	local bestAvailableUnit = BestAvailableUnit(ministerCountry, ai)
-	local bestUnitName = tostring(bestAvailableUnit:GetKey())
 	local MPRemaining = EffectiveManPower(ministerCountry)
 	if MPRemaining > 0 and techStatus:IsUnitAvailable(bestAvailableUnit) then
+		local bestUnitName = tostring(bestAvailableUnit:GetKey())
 		local icCost = 0
 		local mpCost = 0
 		local timeCost = 0
 		local divisionList = nil
 		local supportUnit = BestAvailableSupportUnit(ministerCountry, ai, bestAvailableUnit)
 		local supportUnitName = "none"
+		local baseQuantity = 3
+		local supportQuantity = 1
 		if supportUnit then
 			supportUnitName = tostring(supportUnit:GetKey())
+		else
+			supportQuantity = 0
 		end
 		
 		if bestUnitName == "infantry_brigade" then
-			local supportQuantity = 1
-			if supportUnitName == "tank_destroyer_brigade" then
+			if supportUnit and supportUnitName == "tank_destroyer_brigade" then
+				baseQuantity = 2
 				supportQuantity = 2
 			end
-			icCost, mpCost, timeCost, divisionList = ConstructLandDivision(ministerCountry, bestAvailableUnit, 4-supportQuantity, supportUnit, supportQuantity)
+			icCost, mpCost, timeCost, divisionList = ConstructLandDivision(ministerCountry, bestAvailableUnit, baseQuantity, supportUnit, supportQuantity)
 		elseif bestUnitName == "bergsjaeger_brigade" then
-			icCost, mpCost, timeCost, divisionList = ConstructLandDivision(ministerCountry, bestAvailableUnit, 3, supportUnit, 1)
+			icCost, mpCost, timeCost, divisionList = ConstructLandDivision(ministerCountry, bestAvailableUnit, baseQuantity, supportUnit, supportQuantity)
 		elseif bestUnitName == "marine_brigade" then
-			icCost, mpCost, timeCost, divisionList = ConstructLandDivision(ministerCountry, bestAvailableUnit, 3, supportUnit, 1)
+			icCost, mpCost, timeCost, divisionList = ConstructLandDivision(ministerCountry, bestAvailableUnit, baseQuantity, supportUnit, supportQuantity)
 		elseif bestUnitName == "motorized_brigade" then
-			icCost, mpCost, timeCost, divisionList = ConstructLandDivision(ministerCountry, bestAvailableUnit, 2, supportUnit, 2)
+			if supportUnit and supportUnitName == "tank_destroyer_brigade" then
+				baseQuantity = 2
+				supportQuantity = 2
+			end
+			icCost, mpCost, timeCost, divisionList = ConstructLandDivision(ministerCountry, bestAvailableUnit, baseQuantity, supportUnit, supportQuantity)
 		else
-			icCost, mpCost, timeCost, divisionList = ConstructLandDivision(ministerCountry, bestAvailableUnit, 4, nil, 0)
+			baseQuantity = 4
+			icCost, mpCost, timeCost, divisionList = ConstructLandDivision(ministerCountry, bestAvailableUnit, baseQuantity, nil, 0)
 		end
 		
 		if divisionList and MPRemaining-mpCost > 0 then
 			local daysToCollapse = MinDaysToCollapse(ministerCountry, ai)
-			local maxBuild = (MPRemaining*timeCost)/(mpCost*daysToCollapse)
-			local icRatio = ICRemaining/icCost
+			local maxBuild = 9999
+			local favoriteUnit = FavoriteUnit(ministerCountry, ai)
+			local favoriteUnitName = tostring(favoriteUnit:GetKey())
+			if bestUnitName ~= favoriteUnitName then
+				-- if we haven't reached our favorite unit then control how fast we build the units.
+				-- we don't want to burn through valuable manpower
+				local efficiencyRate = math.min(1, ICRemaining/icCost)
+				local mpPerDay = efficiencyRate*mpCost/timeCost
+				maxBuild = (MPRemaining/daysToCollapse)/mpPerDay
+			end
 			local capitalProvId = ministerCountry:GetActingCapitalLocation():GetProvinceID()
 			local ministerTag = minister:GetCountryTag()
 			--COUNTRY_DEBUG(ministerCountry,"Building "..maxBuild.." "..bestUnitName .. "/".. supportUnitName.. " - " .. icCost .."ic " .. mpCost .."mp ".. timeCost .."time")
@@ -245,25 +266,6 @@ function EvaluateMilitary(minister, ICRemaining)
 		end
 	end
 	return ICRemaining
-end
-
-function ConstructLandDivision(ministerCountry, baseUnit, baseQuantity, supportUnit, supportQuantity)
-	local divisionList = SubUnitList()
-	local icCost = baseQuantity*ministerCountry:GetBuildCostIC( baseUnit, 1, false):Get()+supportQuantity*ministerCountry:GetBuildCostIC( baseUnit, 1, false)
-	local mpCost = baseQuantity*ministerCountry:GetBuildCostMP( baseUnit, false):Get()
-	local timeCost = ministerCountry:GetBuildTime( baseUnit, 1)
-	for baseCount = 1,baseQuantity do
-		SubUnitList.Append( divisionList, baseUnit )
-	end
-	if supportUnit then
-		icCost = icCost + supportQuantity*ministerCountry:GetBuildCostIC( supportUnit, 1, false)
-		mpCost = mpCost + supportQuantity*ministerCountry:GetBuildCostMP( supportUnit, false):Get()
-		timeCost = math.max(timeCost, ministerCountry:GetBuildTime( supportUnit, 1))
-		for supportCount = 1,supportQuantity do
-			SubUnitList.Append( divisionList, supportUnit )
-		end
-	end
-	return icCost, mpCost, timeCost, divisionList
 end
 
 -- this function just doesn't work right now due to a lack of support from paradox

@@ -356,38 +356,37 @@ local MinorCountryTechFunc = {
 	["education"] = function (minister, tech) return ScoreEducation(minister, tech) end
 }
 
-local lastLeadershipAdjustment = {}
 function TechMinister_Tick_Modded_AI(minister, set_sliders, set_research)
 	local countryTag = minister:GetCountryTag()
 	local ministerCountry = minister:GetCountry()
 	local ai = minister:GetOwnerAI()
 	
-	--COUNTRY_DEBUG(ministerCountry, "Country using MOD AI: " .. tostring(countryTag))
+	--COUNTRY_DEBUG(ministerCountry, "Using TechMinister_Tick_Modded_AI")
 	if set_sliders then
-		local lookupKey = tostring(countryTag)
-		local lastDate = lastLeadershipAdjustment[lookupKey]
-		local currentDate = CurrentYear(ai)
+		local adjustLeadershipkey = tostring(countryTag).."-TechMinister_Tick_Modded_AI_AdjustLeadership"
+		local canAdjustLeadership = GetCustCache(ai, adjustLeadershipkey)
+		
 		-- only adjust the leadership every 7 days or so
-		--COUNTRY_DEBUG(ministerCountry, "Can I adjust leadership?")
-		if not lastDate or 0.02 <= (currentDate-lastDate) or (currentDate-lastDate) <= 0 then
-			--COUNTRY_DEBUG(ministerCountry, "Adjusting leadership")
+		-- we count this by caching a variable and waiting until the cache is cleared.
+		-- at which point we know 7 days have elapsed.
+		if not canAdjustLeadership then
+			COUNTRY_DEBUG(ministerCountry, "Adjusting leadership")
 			--COUNTRY_DEBUG(ministerCountry, "Continent = ".. GetContinent(ministerCountry))
+			SetCustCache(ai, adjustLeadershipkey, 7, 1)
 			AdjustLeadership(minister)
-			lastLeadershipAdjustment[lookupKey] = currentDate
 		end
 	end
 	
-	if set_research then
+	if set_research and not IsStartOfGame(ai) and IsTotalUnitListSet(ministerCountry) then
 		AdjustResearch(minister)
 	end
-	
 end
 
 function ScoreResource(minister, resourceType, resourceTech)
 	local ai = minister:GetOwnerAI()
 	local ministerCountry = minister:GetCountry()
 	local daysToDepletion = DaysTillResourceDepletion(ministerCountry, ai, resourceType)
-	local score = ResearchTime(minister, resourceTech, 1, CurrentYear(ai))
+	local score = ResearchTime(ministerCountry, ai, resourceTech, 1, CurrentYear(ai))
 	local minDaysToCollapse = MinDaysToCollapse(ministerCountry , ai)
 	if daysToDepletion > minDaysToCollapse then
 		-- If we are not under threat of a resource depletion then never bother to research
@@ -404,7 +403,7 @@ end
 function ScoreOilConversionResource(minister, resourceTech)
 	local ai = minister:GetOwnerAI()
 	local ministerCountry = minister:GetCountry()
-	local score = ResearchTime(minister, resourceTech, 1, CurrentYear(ai))
+	local score = ResearchTime(ministerCountry, ai, resourceTech, 1, CurrentYear(ai))
 	-- to invest in the oil conversion three things need to be true
 	-- 1 we need to have spare energy
 	-- 2 we need to have a shortage of fuel
@@ -427,7 +426,7 @@ end
 function ScoreEducation(minister, educationTech)
 	local ai = minister:GetOwnerAI()
 	local ministerCountry = minister:GetCountry()
-	local rTime = ResearchTime(minister, educationTech, 1, CurrentYear(ai))
+	local rTime = ResearchTime(ministerCountry, ai, educationTech, 1, CurrentYear(ai))
 	local daysToCollapse = MinDaysToCollapse(ministerCountry , ai)
 	
 	local techStatus = ministerCountry:GetTechnologyStatus()
@@ -455,7 +454,7 @@ end
 function ScoreIC(minister, tech)
 	local ai = minister:GetOwnerAI()
 	local ministerCountry = minister:GetCountry()
-	local score = ResearchTime(minister, tech, 1, CurrentYear(ai))
+	local score = ResearchTime(ministerCountry, ai, tech, 1, CurrentYear(ai))
 	if InvestInIC(minister) then
 		-- If we're investing into IC then skew the score to make it more desirable
 		score = _CUST_DESIRE_HIGH_*score
@@ -476,7 +475,7 @@ end
 function ScoreSupplies(minister, tech)
 	local ai = minister:GetOwnerAI()
 	local ministerCountry = minister:GetCountry()
-	local score = ResearchTime(minister, tech, 1, CurrentYear(ai))
+	local score = ResearchTime(ministerCountry, ai, tech, 1, CurrentYear(ai))
 	if HasICShortage(ministerCountry, ai) then
 		-- if we can't build anything then that's really bad and so try and minimize the impact that supplies have on this IC shortage.
 		-- Note how ScoreSupplies, unlike ScoreIC, does not rely on whether here is an ICResourceShortage.
@@ -489,7 +488,8 @@ end
 
 function ScoreICEnable(minister, tech)
 	local ai = minister:GetOwnerAI()
-	local score = ResearchTime(minister, tech, 1, CurrentYear(ai))
+	local ministerCountry = minister:GetCountry()
+	local score = ResearchTime(ministerCountry, ai, tech, 1, CurrentYear(ai))
 	if InvestInIC(minister) then
 		-- If we're investing into IC then we need this immediately!
 		score = _CUST_DESIRE_HIGH_*score
@@ -504,7 +504,7 @@ function ScoreManPower(minister, tech)
 	local ai = minister:GetOwnerAI()
 	local ministerCountry = minister:GetCountry()
 	local favoriteUnit = FavoriteUnit(ministerCountry, ai)
-	local score = ResearchTime(minister, tech, 1, CurrentYear(ai))
+	local score = ResearchTime(ministerCountry, ai, tech, 1, CurrentYear(ai))
 	local daysToDepletion = DivisionDaysToMPDepletion(ministerCountry, ai, favoriteUnit, 3, nil, 0)
 	if daysToDepletion > MinDaysToCollapse(ministerCountry, ai) then
 		-- If we are not under threat of a man power shortage then never bother to research
@@ -520,7 +520,7 @@ function ScoreMedic(minister, tech)
 	local ai = minister:GetOwnerAI()
 	local ministerCountry = minister:GetCountry()
 	local favoriteUnit = FavoriteUnit(ministerCountry, ai)
-	local score = ResearchTime(minister, tech, 1, CurrentYear(ai))
+	local score = ResearchTime(ministerCountry, ai, tech, 1, CurrentYear(ai))
 	local daysToDepletion = DivisionDaysToMPDepletion(ministerCountry, ai, favoriteUnit, 3, nil, 0)
 	if daysToDepletion > MinDaysToCollapse(ministerCountry, ai) then
 		-- If we are not under threat of a man power shortage then never bother to research
@@ -538,7 +538,7 @@ function ScoreMilitaryUnit(minister, tech)
 	local ministerCountry = minister:GetCountry()
 	local favoriteUnit = FavoriteUnit(ministerCountry, ai)
 	local favorOldTech = TechYearSkew(minister, tech, 1, CurrentYear(ai))
-	local score = favorOldTech*ResearchTime(minister, tech, 1, CurrentYear(ai))
+	local score = favorOldTech*ResearchTime(ministerCountry, ai, tech, 1, CurrentYear(ai))
 	if IsUnitTech(favoriteUnit, tech) then
 		if ministerCountry:IsAtWar() then
 		-- these techs have less preference during war
@@ -566,7 +566,7 @@ function ScoreMilitaryUnitEnable(minister, tech)
 	local ministerCountry = minister:GetCountry()
 	local favoriteUnit = FavoriteUnit(ministerCountry, ai)
 	local favorOldTech = TechYearSkew(minister, tech, 1, CurrentYear(ai))
-	local score = favorOldTech * ResearchTime(minister, tech, 1, CurrentYear(ai))
+	local score = favorOldTech * ResearchTime(ministerCountry, ai, tech, 1, CurrentYear(ai))
 	local req = IsUnitRequirement(favoriteUnit, tech)
 	local techStatus = ministerCountry:GetTechnologyStatus()
 	local techLevel = techStatus:GetLevel(tech)
@@ -590,7 +590,7 @@ function ScoreMilitaryDoctrine(minister, tech)
 	local ai = minister:GetOwnerAI()
 	local ministerCountry = minister:GetCountry()
 	local favorOldTech = TechYearSkew(minister, tech, 1, CurrentYear(ai))
-	local score = favorOldTech * ResearchTime(minister, tech, 1, CurrentYear(ai))
+	local score = favorOldTech * ResearchTime(ministerCountry, ai, tech, 1, CurrentYear(ai))
 	if ministerCountry:IsAtWar() then
 		-- give these techs preference during war
 		score = _CUST_DESIRE_MED_ * score
@@ -605,7 +605,7 @@ function ScoreUberMilitaryDoctrine(minister, tech)
 	local ai = minister:GetOwnerAI()
 	local ministerCountry = minister:GetCountry()
 	local favorOldTech = TechYearSkew(minister, tech, 1, CurrentYear(ai))
-	local score = _CUST_DESIRE_HIGH_ * ResearchTime(minister, tech, 1, CurrentYear(ai))
+	local score = _CUST_DESIRE_HIGH_ * ResearchTime(ministerCountry, ai, tech, 1, CurrentYear(ai))
 	-- these doctrines are so good that we should research them the instant they become available
 	return score
 end
@@ -614,7 +614,7 @@ function ScoreCombinedArmsDoctrine(minister, tech)
 	local ai = minister:GetOwnerAI()
 	local ministerCountry = minister:GetCountry()
 	local favorOldTech = TechYearSkew(minister, tech, 1, CurrentYear(ai))
-	local score =  ResearchTime(minister, tech, 1, CurrentYear(ai))
+	local score =  ResearchTime(ministerCountry, ai, tech, 1, CurrentYear(ai))
 	local favoriteUnit = FavoriteUnit(ministerCountry, ai)
 	local favoriteUnitName = tostring(favoriteUnit:GetKey())
 	if favoriteUnitName == "motorized_brigade" then
@@ -773,7 +773,7 @@ function ConstructResearchList(minister)
 			score = math.min(ScoreMilitaryUnit(minister, tech), score)
 			
 			if score < _CUST_DESIRE_NEVER_ then
-				--COUNTRY_DEBUG(minister:GetCountry(), score .. " / "..ResearchTime(minister, tech, 1, CurrentYear(ai)).." / " .. TechYearSkew(minister, tech, 1, CurrentYear(ai)) .. "----".. techName)
+				--COUNTRY_DEBUG(ministerCountry, score .. " / "..ResearchTime(ministerCountry, ai, tech, 1, CurrentYear(ai)).." / " .. TechYearSkew(minister, tech, 1, CurrentYear(ai)) .. "----".. techName)
 			end
 			table.insert(researchList, {score, tech})
 		end
