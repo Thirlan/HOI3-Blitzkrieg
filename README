@@ -1,1 +1,9 @@
 Mod for the game Hearts of Iron III: For the Motherland.
+
+I had heavily modified the AI in the mod in the hopes of improving it considerably. The AI was terrible in HOI III. There was considerable success at first (notably my China AI could beat Japan's Default AI). Unfortunately extensive coding revealed that Paradox's framework for the AI sripts was not adequate for the AI intelligence I had in mind. 
+
+Each Ministers' AI for a given country had its own thread context. It was also very difficult to store longterm data because each time the Minister AI script was called it was a brand new thread context. So data stored in a previous context would be lost. Furthermore two different minister's from the same country could not share stored data.
+
+Great effort was done near the end to try and fix this as can be seen in my attempts in the code to do data sharing through thread locking techniques. But then things started getting stranger. I discovered that a given Minister for a given country could have multiple threads running at the SAME TIME! That was the final straw and I abandoned any further attempts to work on the scripts and determined that Paradox had only intended the scripts to be "stateless".
+
+So effectly each minister was locked in his own room unable to talk to the other ministers. On top of that while trying to do his work he would constantly suffer memory loss and multipe personality disorders. So in short I was trying to deal with an insane asylum.
